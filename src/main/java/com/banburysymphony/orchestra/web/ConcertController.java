@@ -83,6 +83,11 @@ public class ConcertController {
     public String login(Model model) {
         return "redirect:/concert/list";
     }
+    /**
+     * List all of the concerts
+     * @param model
+     * @return 
+     */
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String listConcerts(Model model) {
         log.info("Listing all concerts");
