@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head> 
+        <title>List Venues</title>
+        <meta charset="UTF-8" />
+    </head>
+    <body>
+        <h1>Venue List</h1>
+        <p/>
+        <div th:include="header :: options"/>
+        <div sec:authorize="hasRole('ROLE_ADMIN')">
+            <a th:href="@{new}">Create new Venue</a>
+        </div>
+        
+        <div align="center">
+            <br/><br/>
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Name</th>
+                        <th sec:authorize="hasRole('ROLE_ADMIN')">Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="venue : ${venues}">
+                        <td th:text="${venue.id}">Venue ID</td>
+                        <td th:text="${venue.name}">Name</td>
+                        <td sec:authorize="hasRole('ROLE_ADMIN')">
+                            <a th:href="@{edit/{id}(id = ${venue.id})}">Edit</a>
+                            &nbsp;&nbsp;&nbsp;
+                            <a th:href="@{delete/{id}(id = ${venue.id})}">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

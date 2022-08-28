@@ -1,0 +1,38 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Header</title>
+        <meta charset="UTF-8"/>
+    </head>
+
+    <body>
+        <!-- Permanent options for each page -->
+        <div th:fragment="css">
+            <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.4/css/bootstrap.min.css"
+                  th:href="@{/webjars/bootstrap/3.3.4/css/bootstrap.min.css}"
+                  rel="stylesheet" media="screen" />
+            <script src="http://cdn.jsdelivr.net/webjars/jquery/2.1.4/jquery.min.js"
+            th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
+            <link href="../static/css/guru.css"
+                  th:href="@{css/guru.css}" rel="stylesheet" media="screen"/>
+        </div>
+        <div th:fragment="options">
+            <table>
+                <tr>
+                    <td><img src="BSO" th:attr="src=@{/images/BSO-Red-Logo2.png}" alt="BSO Image"/></td> &nbsp; &nbsp; &nbsp; &nbsp;
+                    <td>
+                        <a href="login" th:if="${#authentication.name} == 'anonymousUser'" th:href="@{/concert/login}">Login</a>
+                        <a href="setpassword" th:if="${#authentication.name} != 'anonymousUser'" th:href="@{/user/setpassword}">Set password</a>
+                    </td> &nbsp; &nbsp; &nbsp; &nbsp;
+                    <td><a href="concerts" th:href="@{/concert/list}">Concerts</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
+                    <td><a href="pieces" th:href="@{/piece/list}">Pieces</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
+                    <td><a href="soloists" th:href="@{/engagement/list}">Soloists</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
+                    <td><a href="venues" th:href="@{/venue/list}">Venues</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
+                </tr>
+            </table>
+        </div>
+
+    </body>
+
+</html>

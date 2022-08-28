@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>Concert list</title>
+        <meta charset="UTF-8"/>
+        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.4/css/bootstrap.min.css"
+              th:href="@{/webjars/bootstrap/3.3.4/css/bootstrap.min.css}"
+              rel="stylesheet" media="screen" />
+        <script src="http://cdn.jsdelivr.net/webjars/jquery/2.1.4/jquery.min.js"
+        th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
+        <link href="../static/css/guru.css"
+              th:href="@{/css/guru.css}" rel="stylesheet" media="screen"/>
+    </head>
+    <body>
+        <div>
+            <div th:include="header :: options"/>
+            <h1>Concert List</h1>
+            <p/>
+            <div sec:authorize="hasRole('ROLE_ADMIN')">
+                This content is only shown to administrators.
+            </div>
+
+            <div sec:authorize="hasRole('ROLE_USER')">
+                This content is only shown to users.
+            </div>
+            <div th:if="${#authentication.name} != 'anonymousUser'">
+                The user is logged-in as <div th:text="${#authentication.name}">some name</div>
+            </div>
+            <p/>
+            <div sec:authorize="hasRole('ROLE_ADMIN')">
+                <form method="POST" enctype="multipart/form-data" action="#" th:action="@{upload}">
+                    <table>
+                        <tr>
+                            <td>File to upload:</td><td><input type="file" name="file" /></td>
+                            <td><input type="submit" value="Upload" /></td>
+                        </tr>
+                    </table>
+                </form>
+                <p/>
+                <form method="POST" enctype="multipart/form-data" action="#" th:action="@{uploadZip}">
+                    <table>
+                        <tr>
+                            <td>Zip file to upload:</td><td><input type="file" name="file" /></td>
+                            <td><input type="submit" value="Upload Zip" /></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+        <div align="center">
+            <br/><br/>
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>Concert ID</th>
+                        <th>Venue</th>
+                        <th>Date</th>
+                        <th>Conductor</th>
+                        <th>Pieces</th>
+                        <th >Soloists</th>
+                        <th sec:authorize="hasRole('ROLE_ADMIN')">Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="concert : ${concerts}">
+                        <td th:text="${concert.id}">Concert ID</td>
+                        <td th:text="${concert.venue.name}">Venue</td>
+                        <td th:text="${concert.date}">Date</td>
+                        <td>
+                            <a href="listByConductor" th:href="@{listByConductor(id=${concert.conductor.id})}">
+                                <span th:text="${concert.conductor.name}">Conductor</span>                            
+                            </a>
+                        </td>
+                        <td>
+                            <table>
+                                <tbody>
+                                    <tr th:each="piece : ${concert.pieces}">
+                                        <td>
+                                            <a href="listByComposer" th:href="@{listByComposer(name=${piece.composer})}">
+                                                <span th:text="${piece.composer}">Composer</span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="listByPiece" th:href="@{listByPiece(id=${piece.id})}">
+                                                <span th:text="${piece.title}">Title</span>
+                                            </a>
+                                        </td>
+                                        <td th:text="${piece.subtitle}">Subtitle</td>
+                                    </tr>                    
+                                </tbody>
+                            </table>
+                        </td>
+                        <td>
+                            <table>
+                                <tbody>
+                                    <tr th:each="soloist : ${concert.soloists}">
+                                        <td>
+                                            <a href="listBySoloist" th:href="@{listBySoloist(id=${soloist.artist.id})}">
+                                                <span th:text="${soloist.artist.name}">Soloist</span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="listBySkill" th:href="@{listBySkill(name=${soloist.skill})}">
+                                                (<span th:text="${soloist.skill}">Skill</span>)
+                                            </a>
+                                        </td>
+                                    </tr>                    
+                                </tbody>
+                            </table>
+                        </td>
+                        <td sec:authorize="hasRole('ROLE_ADMIN')">
+                            <a th:href="@{delete/{id}(id = ${concert.id})}">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

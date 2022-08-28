@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+    <head> 
+        <title>Soloists</title>
+        <meta charset="UTF-8" />
+    </head>
+    <body>
+        <h1>Soloists</h1>
+        <p/>
+        <div th:include="header :: options"/>
+        <div align="center">
+            <br/><br/>
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>Engagement ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${engagements}">
+                        <td th:text="${e.id}">ID</td>
+                        <td>
+                            <a href="listBySoloist" th:href="@{/concert/listBySoloist(id=${e.artist.id})}">
+                                <span th:text="${e.artist.name}">Soloist</span>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="listBySkill" th:href="@{/concert/listBySkill(name=${e.skill})}">
+                                <span th:text="${e.skill}">Skill</span>
+                            </a>
+                        </td>                        
+                        <td>
+                            <a href="concert" th:href="@{/concert/listById(id=${e.concert.id})}">
+                                <span th:text="${e.concert.date}">Date</span>                            
+                            </a>
+                        </td>
+                        <!--
+                                                <td>
+                                                    <a th:href="@{edit/{id}(id = ${venue.id})}">Edit</a>
+                                                    &nbsp;&nbsp;&nbsp;
+                                                    <a th:href="@{delete/{id}(id = ${venue.id})}">Delete</a>
+                                                </td>
+                        -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

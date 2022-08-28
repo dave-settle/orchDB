@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head> 
+        <title>List Pieces</title>
+        <meta charset="UTF-8" />
+    </head>
+    <body>
+        <h1>Piece List</h1>
+        <p/>
+        <div th:include="header :: options"/>
+        <a th:href="@{new}">Create new Piece</a>
+        <div align="center">
+            <br/><br/>
+            <table border="1" cellpadding="10">
+                <thead>
+                    <tr>
+                        <th>Piece ID</th>
+                        <th>Composer</th>
+                        <th>Title</th>
+                        <th>Subtitle</th>
+                        <th>Times played</th>
+                        <th>Last played</th>
+                        <th sec:authorize="hasRole('ROLE_ADMIN')">Option</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="piece : ${pieces}">
+                        <td th:text="${piece.id}">Piece ID</td>
+                        <td>
+                            <a href="byComposer" th:href="@{listByComposer(name=${piece.composer})}">
+                                <span th:text="${piece.composer}">Composer</span>
+                            </a>
+                        </td>
+                        <td th:text="${piece.title}">Title</td>
+                        <td th:text="${piece.subtitle}">Subtitle</td>
+                        <td>
+                            <a href="concerts" th:href="@{/concert/listByPiece(id=${piece.id})}">
+                                <span th:text="${frequency.get(piece.id)}">Times played</span>                            
+                            </a>
+                        </td>
+                        <td th:text="${lastPlayed.get(piece.id)}">Last played</td>
+                        <td sec:authorize="hasRole('ROLE_ADMIN')">
+                            <a th:href="@{edit/{id}(id = ${piece.id})}">Edit</a>
+                            &nbsp;&nbsp;&nbsp;
+                            <a th:href="@{delete/{id}(id = ${piece.id})}">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
