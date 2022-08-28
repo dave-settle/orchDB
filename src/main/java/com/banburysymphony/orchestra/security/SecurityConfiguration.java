@@ -40,7 +40,7 @@ public class SecurityConfiguration {
                 .authorizeRequests().antMatchers("/webjars/**").permitAll().and()
                 .authorizeRequests().antMatchers("/css/*").permitAll().and()
                 .authorizeRequests().antMatchers("/images/**").permitAll().and()
-                .authorizeRequests().antMatchers("/user/register").permitAll().and()
+                .authorizeRequests().antMatchers("/user/bootstrap").permitAll().and()
                 .authorizeRequests().antMatchers("/**").hasRole("ADMIN").and().
                 formLogin().permitAll();
         return http.build();

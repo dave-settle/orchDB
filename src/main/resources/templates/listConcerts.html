@@ -15,6 +15,25 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
         <link href="../static/css/guru.css"
               th:href="@{/css/guru.css}" rel="stylesheet" media="screen"/>
+        <style>
+            table.concert {
+                width: 90%;
+            }
+            table.piece {
+                table-layout: auto;
+                width: 100%;
+            }
+            td.composer {
+                width: 30%
+            }
+            td.title {
+                width: 50%
+            }
+            td.subtitle {
+                width: 20%
+            }
+
+        </style>
     </head>
     <body>
         <div>
@@ -54,15 +73,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         </div>
         <div align="center">
             <br/><br/>
-            <table border="1" cellpadding="10">
-                <thead>
+            <table class="concert table table-bordered table-striped">
+                <thead class="thead-light">
                     <tr>
                         <th>Concert ID</th>
                         <th>Venue</th>
                         <th>Date</th>
                         <th>Conductor</th>
-                        <th>Pieces</th>
-                        <th >Soloists</th>
+                        <th>Piece</th>
+                        <th>Soloists</th>
                         <th sec:authorize="hasRole('ROLE_ADMIN')">Option</th>
                     </tr>
                 </thead>
@@ -77,20 +96,20 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             </a>
                         </td>
                         <td>
-                            <table>
+                            <table class="piece">
                                 <tbody>
                                     <tr th:each="piece : ${concert.pieces}">
-                                        <td>
+                                        <td class="composer">
                                             <a href="listByComposer" th:href="@{listByComposer(name=${piece.composer})}">
                                                 <span th:text="${piece.composer}">Composer</span>
                                             </a>
                                         </td>
-                                        <td>
+                                        <td class="title">
                                             <a href="listByPiece" th:href="@{listByPiece(id=${piece.id})}">
                                                 <span th:text="${piece.title}">Title</span>
                                             </a>
                                         </td>
-                                        <td th:text="${piece.subtitle}">Subtitle</td>
+                                        <td class="subtitle" th:text="${piece.subtitle}">Subtitle</td>
                                     </tr>                    
                                 </tbody>
                             </table>
