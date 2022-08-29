@@ -18,18 +18,21 @@
                   th:href="@{css/guru.css}" rel="stylesheet" media="screen"/>
         </div>
         <div th:fragment="options">
-            <table>
-                <tr>
-                    <td><img src="BSO" th:attr="src=@{/images/BSO-Red-Logo2.png}" alt="BSO Image"/></td> &nbsp; &nbsp; &nbsp; &nbsp;
-                    <td>
-                        <a href="login" th:if="${#authentication.name} == 'anonymousUser'" th:href="@{/concert/login}">Login</a>
-                        <a href="setpassword" th:if="${#authentication.name} != 'anonymousUser'" th:href="@{/user/setpassword}">Set password</a>
-                    </td> &nbsp; &nbsp; &nbsp; &nbsp;
-                    <td><a href="concerts" th:href="@{/concert/list}">Concerts</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
-                    <td><a href="pieces" th:href="@{/piece/list}">Pieces</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
-                    <td><a href="soloists" th:href="@{/engagement/list}">Soloists</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
-                    <td><a href="venues" th:href="@{/venue/list}">Venues</a></td> &nbsp; &nbsp; &nbsp; &nbsp;
-                </tr>
+            <table class="table menu">
+                <thead/>
+                <tbody>
+                    <tr>
+                        <td><img src="BSO" th:attr="src=@{/images/BSO-Red-Logo2.png}" alt="BSO Image"/></td> 
+                        <td>
+                            <a href="login" th:if="${#authentication.name} == 'anonymousUser'" th:href="@{/concert/login}">Login</a>
+                            <a href="setpassword" th:if="${#authentication.name} != 'anonymousUser'" th:href="@{/user/setpassword}">Set password</a>
+                        </td> &nbsp; &nbsp; &nbsp; &nbsp;
+                        <td><a href="concerts" th:href="@{/concert/list}">Concerts</a></td> 
+                        <td><a href="pieces" th:href="@{/piece/list}">Pieces</a></td> 
+                        <td><a href="soloists" th:href="@{/engagement/list}">Soloists</a></td> 
+                        <td><a href="venues" th:href="@{/venue/list}">Venues</a></td> 
+                    </tr>
+                </tbody>
             </table>
         </div>
 
