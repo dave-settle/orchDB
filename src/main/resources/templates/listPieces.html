@@ -43,7 +43,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                                 <span th:text="${piece.composer}">Composer</span>
                             </a>
                         </td>
-                        <td th:text="${piece.title}">Title</td>
+                        <td>
+                            <a href="listByPiece" th:href="@{/concert/listByPiece(id=${piece.id})}">
+                                <span th:text="${piece.title}">Title</span>
+                            </a>
+                        </td>
                         <td th:text="${piece.subtitle}">Subtitle</td>
                         <td>
                             <a href="concerts" th:href="@{/concert/listByPiece(id=${piece.id})}">

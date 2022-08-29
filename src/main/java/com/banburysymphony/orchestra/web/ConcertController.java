@@ -228,8 +228,9 @@ public class ConcertController {
             }
             /*
              * Soloist is actually a comma-separated list
+             * Also allow plural
              */
-            if ("Soloist".equalsIgnoreCase(key)) {
+            if ("Soloist".equalsIgnoreCase(key) || "Soloists".equalsIgnoreCase(key)) {
                 tok = new StringTokenizer(value, ",");
                 while (tok.hasMoreTokens()) {
                     String s = tok.nextToken();  // e.g. Abi Stevens (flute)
