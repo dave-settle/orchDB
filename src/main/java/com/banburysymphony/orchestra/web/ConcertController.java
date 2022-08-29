@@ -234,10 +234,10 @@ public class ConcertController {
                 while (tok.hasMoreTokens()) {
                     String s = tok.nextToken();  // e.g. Abi Stevens (flute)
                     StringTokenizer t = new StringTokenizer(s, "()");
-                    String n = t.nextToken();  // e.g. Abi Stevens
+                    String n = t.nextToken().trim();  // e.g. Abi Stevens
                     String skill = "";
                     if (t.hasMoreTokens()) {
-                        skill = t.nextToken(); // e.g. flute
+                        skill = t.nextToken().trim(); // e.g. flute
                     }
                     log.debug("found soloist [" + n + "] with skill [" + skill + "]");
                     Artist a = getArtist(n);
