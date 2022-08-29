@@ -4,6 +4,13 @@
     <head>
         <title>Register User</title>
         <meta charset="UTF-8"/>
+        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.4/css/bootstrap.min.css"
+              th:href="@{/webjars/bootstrap/3.3.4/css/bootstrap.min.css}"
+              rel="stylesheet" media="screen" />
+        <script src="http://cdn.jsdelivr.net/webjars/jquery/2.1.4/jquery.min.js"
+        th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
+        <link href="../static/css/guru.css"
+              th:href="@{/css/guru.css}" rel="stylesheet" media="screen"/>
     </head>
     <body>
         <div th:include="header :: options"/>
@@ -14,9 +21,9 @@
             <p>Password: <input type="password" name="password" /></p>
             <p>Role 
                 <select th:field="role">
-                    <option value="USER">User</option>
-                    <option value="EDITOR">Editor</option>
-                    <option value="ADMIN">User</option>
+                    <option value="ROLE_USER">User</option>
+                    <option value="ROLE_EDITOR">Editor</option>
+                    <option value="ROLE_ADMIN">User</option>
                 </select>
             </p>
             <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
