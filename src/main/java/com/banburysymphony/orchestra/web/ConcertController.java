@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -117,6 +118,8 @@ public class ConcertController {
     public String listConcertsByPiece(Model model, @RequestParam(name = "id", required = true) int id) {
         log.info("Listing all concerts with piece " + id);
         Optional<Piece> piece = pieceRepository.findById(id);
+        if(piece.isEmpty())
+            throw new NoSuchElementException("Piece " + id + " not found");
         List<Concert> concerts = concertRepository.findAllByPieces(piece.get(), Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
