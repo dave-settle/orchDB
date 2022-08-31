@@ -120,6 +120,7 @@ public class PieceController {
             if (existingPiece.getTitle().length() <= piece.getTitle().length()) {
                 existingPiece.setTitle(piece.getTitle().trim());
             }
+            existingPiece.setComposer(piece.getComposer().trim());
             existingPiece.setSubtitle(piece.getSubtitle().trim());
             log.info("Updating existing piece " + existingPiece);
             pieceRepository.save(existingPiece);
