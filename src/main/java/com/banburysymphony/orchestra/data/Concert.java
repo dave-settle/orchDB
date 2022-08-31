@@ -7,8 +7,8 @@ package com.banburysymphony.orchestra.data;
 
 import java.sql.Date;
 import java.text.DateFormat;
-import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,6 +19,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
 /**
@@ -48,11 +49,12 @@ public class Concert {
     
     private Date date;
 
+    @OrderColumn
     @ManyToMany
     @JoinTable(name = "concert_piece", 
             joinColumns = { @JoinColumn(name = "fk_concert") }, 
             inverseJoinColumns = { @JoinColumn(name = "fk_piece") })
-    private Set<Piece> pieces = new HashSet<Piece>();
+    private List<Piece> pieces = new LinkedList<Piece>();
     
     @ManyToOne
     private Artist conductor;
@@ -103,14 +105,14 @@ public class Concert {
     /**
      * @return the pieces
      */
-    public Set<Piece> getPieces() {
+    public List<Piece> getPieces() {
         return pieces;
     }
 
     /**
      * @param pieces the pieces to set
      */
-    public void setPieces(Set<Piece> pieces) {
+    public void setPieces(List<Piece> pieces) {
         this.pieces = pieces;
     }
 

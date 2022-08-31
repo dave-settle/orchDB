@@ -9,6 +9,7 @@ import com.banburysymphony.orchestra.jpa.PieceRepository;
 import java.math.BigInteger;
 import java.sql.Date;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,9 @@ public class PieceController {
 
     @Autowired
     PieceRepository pieceRepository;
+    
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
 
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String listPieces(Model model) {
@@ -56,12 +60,15 @@ public class PieceController {
         Map<Integer, Long> frequency = new HashMap<>();
         Map<Integer, String> lastPlayed = new HashMap<>();
         for (Object[] f : played) {
-            log.debug("played " + f + ": [0]=" + f[0].getClass().getName() + ", [1]=" + f[1].getClass().getName() + ", [3]=" + f[3].getClass().getName());
+            //log.trace("played " + f + ": [0]=" + f[0].getClass().getName() + ", [1]=" + f[1].getClass().getName() + ", [3]=" + f[3].getClass().getName());
             BigInteger c = (BigInteger) f[1];
             Integer id = (Integer) f[0];
             frequency.put(id, c.longValue());
             Date lp = (Date) f[3];
-            lastPlayed.put(id, DateFormat.getDateInstance().format(lp));
+            /*
+             * DateFormat.getDateInstance() produces a more human-readable date, but not so sortable
+             */
+            lastPlayed.put(id, sdf.format(lp));
             log.debug("played " + f[2] + " " + c + " times, last was " + lp);
         }
         model.addAttribute("frequency", frequency);

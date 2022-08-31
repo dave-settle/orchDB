@@ -13,8 +13,27 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
               rel="stylesheet" media="screen" />
         <script src="http://cdn.jsdelivr.net/webjars/jquery/2.1.4/jquery.min.js"
         th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
-        <link href="../static/css/guru.css"
-              th:href="@{/css/guru.css}" rel="stylesheet" media="screen"/>
+        <!-- Bootstrap -->
+        <script src="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.4/js/bootstrap.min.js"
+        th:src="@{/webjars/bootstrap/3.3.4/js/bootstrap.min.js}"></script>
+        <!-- Additional resources required for dataTables -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.css"
+              th:href="@{/webjars/datatables/1.12.1/css/jquery.dataTables.min.css}"/>
+        <script src="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.js"
+        th:src="@{/webjars/datatables/1.12.1/js/jquery.dataTables.min.js}"></script>
+
+        <script>
+            $(document).ready(function () {
+                var table = $('#concertTable').DataTable({
+                    "language": {
+                        "search": "Filter records: "
+                    },
+                    "lengthMenu": [ [ 25, 50, 100, 200, -1 ] , [ 25, 50, 100, 200, "All" ] ],
+                    "order": [ [ 0, 'desc' ] ]
+                });
+            });
+        </script>
+
         <style>
             table.concert {
                 width: 90%;
@@ -71,14 +90,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 </form>
             </div>
         </div>
-        <div align="center">
+        <div class="table-responsive">
             <br/><br/>
-            <table class="concert table table-bordered table-striped">
+            <table id="concertTable" class="concert table table-bordered table-striped">
                 <thead class="thead-light">
                     <tr>
-                        <th>Concert ID</th>
-                        <th>Venue</th>
                         <th>Date</th>
+                        <th>Venue</th>
                         <th>Conductor</th>
                         <th>Piece</th>
                         <th>Soloists</th>
@@ -87,9 +105,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 </thead>
                 <tbody>
                     <tr th:each="concert : ${concerts}">
-                        <td th:text="${concert.id}">Concert ID</td>
-                        <td th:text="${concert.venue.name}">Venue</td>
                         <td th:text="${concert.date}">Date</td>
+                        <td th:text="${concert.venue.name}">Venue</td>
                         <td>
                             <a href="listByConductor" th:href="@{listByConductor(id=${concert.conductor.id})}">
                                 <span th:text="${concert.conductor.name}">Conductor</span>                            

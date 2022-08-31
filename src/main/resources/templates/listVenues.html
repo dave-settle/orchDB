@@ -13,8 +13,24 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
               rel="stylesheet" media="screen" />
         <script src="http://cdn.jsdelivr.net/webjars/jquery/2.1.4/jquery.min.js"
         th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
-        <link href="../static/css/guru.css"
-              th:href="@{/css/guru.css}" rel="stylesheet" media="screen"/>
+        <!-- Bootstrap -->
+        <script src="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.4/js/bootstrap.min.js"
+        th:src="@{/webjars/bootstrap/3.3.4/js/bootstrap.min.js}"></script>
+        <!-- Additional resources required for dataTables -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.css"
+              th:href="@{/webjars/datatables/1.12.1/css/jquery.dataTables.min.css}"/>
+        <script src="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.js"
+        th:src="@{/webjars/datatables/1.12.1/js/jquery.dataTables.min.js}"></script>
+
+        <script>
+            $(document).ready(function () {
+                $('#venueTable').DataTable({
+                    "language": {
+                        "search": "Filter records: "
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
         <h1>Venue List</h1>
@@ -24,19 +40,17 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
             <a th:href="@{new}">Create new Venue</a>
         </div>
         
-        <div align="center">
+        <div class="table-responsive">
             <br/><br/>
-            <table class="table table-bordered table-striped">
+            <table id="venueTable" class="table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th>Product ID</th>
                         <th>Name</th>
                         <th sec:authorize="hasRole('ROLE_ADMIN')">Option</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="venue : ${venues}">
-                        <td th:text="${venue.id}">Venue ID</td>
                         <td th:text="${venue.name}">Name</td>
                         <td sec:authorize="hasRole('ROLE_ADMIN')">
                             <a th:href="@{edit/{id}(id = ${venue.id})}">Edit</a>

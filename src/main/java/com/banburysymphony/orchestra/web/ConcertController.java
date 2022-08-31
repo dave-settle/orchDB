@@ -5,7 +5,9 @@
 package com.banburysymphony.orchestra.web;
 
 /**
- *
+ * Controls the listing concerts, and provides means to load a concert
+ * via a text file (or a ZIP file containing multiple text files)
+ * 
  * @author dave.settle@osinet.co.uk on 20 Aug 2022
  */
 import com.banburysymphony.orchestra.data.Artist;
@@ -25,9 +27,11 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -39,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -67,12 +72,25 @@ public class ConcertController {
 
     @Autowired
     EngagementRepository engagementRepository;
+    /**
+     * Hopefully people will start using composer names with accents,
+     * but some composers are commonly recorded without accents
+     */
+    Map<String, String> composerMap;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     
     private String encoding = "UTF-8";
 
     private static final Logger log = LoggerFactory.getLogger(ConcertController.class);
+
+    public ConcertController() {
+        this.composerMap = Map.ofEntries(
+                new AbstractMap.SimpleEntry<>("dvorak", "Dvořák"),
+                new AbstractMap.SimpleEntry<>("bartok", "Bartók"),
+                new AbstractMap.SimpleEntry<>("faure", "Fauré"),
+                new AbstractMap.SimpleEntry<>("francaix", "Françaix")
+        );  }
     /**
      * The login method just redirects to the concert listing page.
      * The actual login operation is done automatically by the security layer
@@ -91,7 +109,7 @@ public class ConcertController {
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String listConcerts(Model model) {
         log.info("Listing all concerts");
-        Iterable<Concert> concerts = concertRepository.findAll(Sort.by("date"));
+        Iterable<Concert> concerts = concertRepository.findAll(Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
@@ -99,7 +117,7 @@ public class ConcertController {
     public String listConcertsByPiece(Model model, @RequestParam(name = "id", required = true) int id) {
         log.info("Listing all concerts with piece " + id);
         Optional<Piece> piece = pieceRepository.findById(id);
-        List<Concert> concerts = concertRepository.findAllByPieces(piece.get(), Sort.by("date"));
+        List<Concert> concerts = concertRepository.findAllByPieces(piece.get(), Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
@@ -117,28 +135,28 @@ public class ConcertController {
     public String listConcertsByConductor(Model model, @RequestParam(name = "id", required = true) int id) {
         log.info("Listing all concerts for conductor ID " + id);
         Optional<Artist> conductor = artistRepository.findById(id);
-        List<Concert> concerts = concertRepository.findAllByConductor(conductor.get(), Sort.by("date"));
+        List<Concert> concerts = concertRepository.findAllByConductor(conductor.get(), Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
     @RequestMapping(path = "/listByComposer", method = RequestMethod.GET)
     public String listConcertsByComposer(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing composer " + name);
-        List<Concert> concerts = concertRepository.findAllByComposer(name, Sort.by("date"));
+        List<Concert> concerts = concertRepository.findAllByComposer(name, Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
     @RequestMapping(path = "/listBySoloist", method = RequestMethod.GET)
     public String listConcertsBySoloist(Model model, @RequestParam(name = "id", required = true) Integer id) {
         log.info("Listing all concerts containing artist " + id);
-        List<Concert> concerts = concertRepository.findAllBySoloist(id, Sort.by("date"));
+        List<Concert> concerts = concertRepository.findAllBySoloist(id, Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
     @RequestMapping(path = "/listBySkill", method = RequestMethod.GET)
     public String listConcertsBySkill(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing skill " + name);
-        List<Concert> concerts = concertRepository.findAllBySkill(name, Sort.by("date"));
+        List<Concert> concerts = concertRepository.findAllBySkill(name, Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
@@ -187,17 +205,25 @@ public class ConcertController {
         Venue venue = getVenue("Unknown");
         Artist conductor = getArtist("Unknown");
         Set<Engagement> soloists = new HashSet<>();
-        Set<Piece> pieces = new HashSet<>();
+        List<Piece> pieces = new LinkedList<>();
         /*
          * Read the first line - BSO 2000-03-25 (Saturday)
          */
-        line = r.readLine();
+        line = getNextLine(r);
         StringTokenizer tok = new StringTokenizer(line, " ");
         tok.nextToken(); // Ignore first word   
         String concertDate = tok.nextToken();
         Date held = new Date(sdf.parse(concertDate).getTime());
         log.debug("parsed (" + concertDate + ") as " + DateFormat.getDateInstance().format(held));
-        while ((line = r.readLine()) != null) {
+        /*
+         * Update: allow an existing concert to be re-loaded
+         */
+        Optional<Concert> current = concertRepository.findByDate(held);
+        if(current.isPresent()) {
+            log.warn("Replacing concert on " + concertDate);
+            concertRepository.deleteById(current.get().getId());
+        }
+        while ((line = getNextLine(r)) != null) {
             log.debug("read: " + line);
             if (!line.contains(":")) {
                 continue;
@@ -255,13 +281,21 @@ public class ConcertController {
              * blank line
              */
             if ("Program".equalsIgnoreCase(key)) {
-                while ((line = r.readLine()) != null) {
+                while ((line = getNextLine(r)) != null) {
                     log.debug("read " + line);
                     if (!line.contains(":")) {
                         break;
                     }
                     tok = new StringTokenizer(line, ":");
                     String composer = tok.nextToken().trim();
+                    /*
+                     * Correct Dvorak :)
+                     */
+                    String fixedComposer = composerMap.get(composer.toLowerCase());
+                    if(fixedComposer != null) {
+                        log.debug("mapping " + composer + " to " + fixedComposer);
+                        composer = fixedComposer;
+                    }
                     String title = tok.nextToken().trim();
                     String subtitle = null;
                     /*
@@ -310,7 +344,18 @@ public class ConcertController {
             concert = concertRepository.save(concert);
         }
     }
-
+    /**
+     * Return the next line which isn't a comment
+     * @param r
+     * @return 
+     */
+    private String getNextLine(BufferedReader r) throws IOException {
+        String line = r.readLine(); 
+        while((line != null) && (line.startsWith("#"))) {
+            line = r.readLine();
+        }
+        return line;
+    }
     /**
      * Delete a specific concert
      *

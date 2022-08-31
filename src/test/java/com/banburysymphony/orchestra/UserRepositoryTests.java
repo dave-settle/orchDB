@@ -47,19 +47,23 @@ public class UserRepositoryTests {
         String username = "dave.settle@osinet.co.uk";
         User user = new User(username, "pw@Corner", User.ROLE_ADMIN);
         /*
-         * Using the userDetailsManager, create an entry
+         * Using the userDetailsManager, create an entry if not already present
          */
-        if(userDetailsManager.userExists(username)) {
-            userDetailsManager.deleteUser(username);
+        if(!userDetailsManager.userExists(username)) {
+            userDetailsManager.createUser(user);
+            // userDetailsManager.deleteUser(username);
         }
-        userDetailsManager.createUser(user);
         /*
          * Using the direct access to the table, check that it's there
          */
-
         Optional<User> existingUser = userRepository.findByEmail(username);
         assertThat(existingUser.isPresent()).isTrue();
         assertThat(user.getEmail()).isEqualTo(existingUser.get().getEmail());
+        /*
+         * Check that a password encoding is being done when the item is stored
+         */
+        assertThat(passwordEncoder).isNotNull();
+        assertThat(user.getPassword()).isNotEqualTo(existingUser.get().getPassword());
 
     }
 }
