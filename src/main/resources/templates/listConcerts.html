@@ -28,27 +28,27 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                     "language": {
                         "search": "Filter records: "
                     },
-                    "lengthMenu": [ [ 25, 50, 100, 200, -1 ] , [ 25, 50, 100, 200, "All" ] ],
-                    "order": [ [ 0, 'desc' ] ]
+                    "lengthMenu": [ [25, 50, 100, 200, -1], [25, 50, 100, 200, "All"] ],
+                    "order": [ [0, 'desc'] ]
                 });
             });
         </script>
 
         <style>
-            table.concert {
+            tableX.concert {
                 width: 90%;
             }
-            table.piece {
+            tableX.piece {
                 table-layout: auto;
                 width: 100%;
             }
-            td.composer {
+            tdX.composer {
                 width: 30%
             }
-            td.title {
+            tdX.title {
                 width: 50%
             }
-            td.subtitle {
+            tdX.subtitle {
                 width: 20%
             }
 
@@ -106,7 +106,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 <tbody>
                     <tr th:each="concert : ${concerts}">
                         <td th:text="${concert.date}">Date</td>
-                        <td th:text="${concert.venue.name}">Venue</td>
+                        <td th:with="filename=|/files/programme-${#calendars.format(concert.date,'yyyy-MM-dd')}.pdf|">
+                            <div th:text="${concert.venue.name}">Venue</div>
+                            <div th:if="${#ctx.getClass().getResource(filename) != null}">
+                                <br/><a href="program/id" th:href="@{programme/{id}(id = ${concert.id})}">Programme PDF</a>
+                            </div>
+                        </td>
                         <td>
                             <a href="listByConductor" th:href="@{listByConductor(id=${concert.conductor.id})}">
                                 <span th:text="${concert.conductor.name}">Conductor</span>                            

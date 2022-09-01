@@ -5,9 +5,9 @@
 package com.banburysymphony.orchestra.web;
 
 /**
- * Controls the listing concerts, and provides means to load a concert
- * via a text file (or a ZIP file containing multiple text files)
- * 
+ * Controls the listing concerts, and provides means to load a concert via a
+ * text file (or a ZIP file containing multiple text files)
+ *
  * @author dave.settle@osinet.co.uk on 20 Aug 2022
  */
 import com.banburysymphony.orchestra.data.Artist;
@@ -43,8 +43,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,8 +61,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Controller // This means that this class is a web Controller
 @RequestMapping(path = "/concert")
-@ConfigurationProperties(prefix = "bso.concert") 
-@ConfigurationPropertiesScan 
+@ConfigurationProperties(prefix = "bso.concert")
+@ConfigurationPropertiesScan
 public class ConcertController {
 
     @Autowired
@@ -74,14 +80,16 @@ public class ConcertController {
     @Autowired
     EngagementRepository engagementRepository;
     /**
-     * Hopefully people will start using composer names with accents,
-     * but some composers are commonly recorded without accents
+     * Hopefully people will start using composer names with accents, but some
+     * composers are commonly recorded without accents
      */
     Map<String, String> composerMap;
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    
+
     private String encoding = "UTF-8";
+    
+    private String basedir = "/files/";
 
     private static final Logger log = LoggerFactory.getLogger(ConcertController.class);
 
@@ -91,21 +99,26 @@ public class ConcertController {
                 new AbstractMap.SimpleEntry<>("bartok", "Bartók"),
                 new AbstractMap.SimpleEntry<>("faure", "Fauré"),
                 new AbstractMap.SimpleEntry<>("francaix", "Françaix")
-        );  }
+        );
+    }
+
     /**
-     * The login method just redirects to the concert listing page.
-     * The actual login operation is done automatically by the security layer
+     * The login method just redirects to the concert listing page. The actual
+     * login operation is done automatically by the security layer
+     *
      * @param model
-     * @return 
+     * @return
      */
     @RequestMapping(path = "/login", method = RequestMethod.GET)
     public String login(Model model) {
         return "redirect:/concert/list";
     }
+
     /**
      * List all of the concerts
+     *
      * @param model
-     * @return 
+     * @return
      */
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String listConcerts(Model model) {
@@ -114,26 +127,31 @@ public class ConcertController {
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
+
     @RequestMapping(path = "/listByPiece", method = RequestMethod.GET)
     public String listConcertsByPiece(Model model, @RequestParam(name = "id", required = true) int id) {
         log.info("Listing all concerts with piece " + id);
         Optional<Piece> piece = pieceRepository.findById(id);
-        if(piece.isEmpty())
+        if (piece.isEmpty()) {
             throw new NoSuchElementException("Piece " + id + " not found");
+        }
         List<Concert> concerts = concertRepository.findAllByPieces(piece.get(), Sort.by(Direction.DESC, "date"));
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
+
     @RequestMapping(path = "/listById", method = RequestMethod.GET)
     public String listConcertsById(Model model, @RequestParam(name = "id", required = true) int id) {
         log.info("Listing all concerts with id " + id);
         Optional<Concert> c = concertRepository.findById(id);
         List<Concert> concerts = new LinkedList<>();
-        if(c.isPresent())
-                concerts.add(c.get());
+        if (c.isPresent()) {
+            concerts.add(c.get());
+        }
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
+
     @RequestMapping(path = "/listByConductor", method = RequestMethod.GET)
     public String listConcertsByConductor(Model model, @RequestParam(name = "id", required = true) int id) {
         log.info("Listing all concerts for conductor ID " + id);
@@ -142,6 +160,7 @@ public class ConcertController {
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
+
     @RequestMapping(path = "/listByComposer", method = RequestMethod.GET)
     public String listConcertsByComposer(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing composer " + name);
@@ -149,6 +168,7 @@ public class ConcertController {
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
+
     @RequestMapping(path = "/listBySoloist", method = RequestMethod.GET)
     public String listConcertsBySoloist(Model model, @RequestParam(name = "id", required = true) Integer id) {
         log.info("Listing all concerts containing artist " + id);
@@ -156,6 +176,7 @@ public class ConcertController {
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
+
     @RequestMapping(path = "/listBySkill", method = RequestMethod.GET)
     public String listConcertsBySkill(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing skill " + name);
@@ -163,12 +184,14 @@ public class ConcertController {
         model.addAttribute("concerts", concerts);
         return "listConcerts";
     }
+
     /**
      * Upload a simple text file
+     *
      * @param file
      * @return
      * @throws IOException
-     * @throws ParseException 
+     * @throws ParseException
      */
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadConcert(@RequestParam("file") MultipartFile file) throws IOException, ParseException {
@@ -177,33 +200,37 @@ public class ConcertController {
         loadConcertFile(r);
         return "redirect:/concert/list";
     }
+
     /**
      * Upload a zip file containing a number of concerts
+     *
      * @param file
      * @return
      * @throws IOException
-     * @throws ParseException 
+     * @throws ParseException
      */
     @RequestMapping(path = "/uploadZip", method = RequestMethod.POST)
     public String uploadConcertZip(@RequestParam("file") MultipartFile file) throws IOException, ParseException {
         log.debug("Received zip file upload");
         ZipInputStream zis = new ZipInputStream(file.getInputStream());
         ZipEntry entry = null;
-        while((entry = zis.getNextEntry()) != null) {
+        while ((entry = zis.getNextEntry()) != null) {
             log.debug("reading zip file " + entry.getName());
             BufferedReader r = new BufferedReader(new InputStreamReader(zis, getEncoding()));
             loadConcertFile(r);
         }
         return "redirect:/concert/list";
     }
+
     /**
      * Load a text file representing a concert
+     *
      * @param r
      * @throws IOException
-     * @throws ParseException 
+     * @throws ParseException
      */
     public void loadConcertFile(BufferedReader r) throws IOException, ParseException {
-      
+
         String line;
         Venue venue = getVenue("Unknown");
         Artist conductor = getArtist("Unknown");
@@ -222,7 +249,7 @@ public class ConcertController {
          * Update: allow an existing concert to be re-loaded
          */
         Optional<Concert> current = concertRepository.findByDate(held);
-        if(current.isPresent()) {
+        if (current.isPresent()) {
             log.warn("Replacing concert on " + concertDate);
             concertRepository.deleteById(current.get().getId());
         }
@@ -256,8 +283,7 @@ public class ConcertController {
                 continue;
             }
             /*
-             * Soloist is actually a comma-separated list
-             * Also allow plural
+             * Soloist is actually a comma-separated list Also allow plural
              */
             if ("Soloist".equalsIgnoreCase(key) || "Soloists".equalsIgnoreCase(key)) {
                 tok = new StringTokenizer(value, ",");
@@ -295,7 +321,7 @@ public class ConcertController {
                      * Correct Dvorak :)
                      */
                     String fixedComposer = composerMap.get(composer.toLowerCase());
-                    if(fixedComposer != null) {
+                    if (fixedComposer != null) {
                         log.debug("mapping " + composer + " to " + fixedComposer);
                         composer = fixedComposer;
                     }
@@ -347,18 +373,21 @@ public class ConcertController {
             concert = concertRepository.save(concert);
         }
     }
+
     /**
      * Return the next line which isn't a comment
+     *
      * @param r
-     * @return 
+     * @return
      */
     private String getNextLine(BufferedReader r) throws IOException {
-        String line = r.readLine(); 
-        while((line != null) && (line.startsWith("#"))) {
+        String line = r.readLine();
+        while ((line != null) && (line.startsWith("#"))) {
             line = r.readLine();
         }
         return line;
     }
+
     /**
      * Delete a specific concert
      *
@@ -374,6 +403,30 @@ public class ConcertController {
             concertRepository.delete(concert.get());
         }
         return ("redirect:/concert/list");
+    }
+
+    @RequestMapping(value = "/programme/{id}", method = RequestMethod.GET, produces = "application/pdf")
+    public ResponseEntity<InputStreamResource> downloadPDFFile(@PathVariable(name = "id", required = true) int id)
+            throws IOException {
+        Optional<Concert> concert = concertRepository.findById(id);
+        if(concert.isEmpty())
+            throw new NoSuchElementException("concert " + id + " not found");
+        String filename = findProgrammeFileName(concert.get());
+        log.debug("concert id " + id + " maps to " + filename);
+        ClassPathResource pdfFile = new ClassPathResource(filename);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData(pdfFile.getFilename(), pdfFile.getFilename());
+        return ResponseEntity
+                .ok().cacheControl(CacheControl.noCache())
+                .headers(headers)
+                .contentLength(pdfFile.contentLength())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(new InputStreamResource(pdfFile.getInputStream()));
+    }
+    
+    public String findProgrammeFileName(Concert concert) {
+        String date = sdf.format(concert.getDate());
+        return getBasedir() + "programme-" + date + ".pdf";
     }
 
     /**
@@ -404,5 +457,19 @@ public class ConcertController {
      */
     public void setEncoding(String encoding) {
         this.encoding = encoding;
+    }
+
+    /**
+     * @return the basedir
+     */
+    public String getBasedir() {
+        return basedir;
+    }
+
+    /**
+     * @param basedir the basedir to set
+     */
+    public void setBasedir(String basedir) {
+        this.basedir = basedir;
     }
 }

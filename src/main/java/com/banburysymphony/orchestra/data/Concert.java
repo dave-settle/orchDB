@@ -62,6 +62,8 @@ public class Concert {
     @OneToMany
     private Set<Engagement> soloists;
     
+    private Boolean programmeAvailable = false;
+    
     //private List<Engagement> players;
 
     public Integer getId() {
@@ -132,5 +134,19 @@ public class Concert {
     @Override
     public String toString() {
         return "Concert(date=" + DateFormat.getDateInstance().format(date) + ", venue=" + venue + ", conductor=" + getConductor() + ")";
+    }
+
+    /**
+     * @return the programmeAvailable
+     */
+    public Boolean getProgrammeAvailable() {
+        return programmeAvailable;
+    }
+
+    /**
+     * @param programmeAvailable the programmeAvailable to set
+     */
+    public void setProgrammeAvailable(Boolean programmeAvailable) {
+        this.programmeAvailable = programmeAvailable;
     }
 }
