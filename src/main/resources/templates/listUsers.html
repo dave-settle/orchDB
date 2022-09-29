@@ -5,40 +5,50 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head> 
+    <head th:replace="header :: common_header(~{::title}, ~{}, ~{::script})">
         <title>List Users</title>
-        <meta charset="UTF-8" />
-        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/3.3.4/css/bootstrap.min.css"
-              th:href="@{/webjars/bootstrap/3.3.4/css/bootstrap.min.css}"
-              rel="stylesheet" media="screen" />
-        <script src="http://cdn.jsdelivr.net/webjars/jquery/2.1.4/jquery.min.js"
-        th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
-        <link href="../static/css/guru.css"
-              th:href="@{/css/guru.css}" rel="stylesheet" media="screen"/>
+        <script></script>
     </head>
     <body>
+        <div th:include="header :: options"/>
         <h1>User List</h1>
         <p/>
-        <div th:include="header :: options"/>
-        <a th:href="@{new}">Create new user</a>
-        <div align="center">
+        <div sec:authorize="hasRole('ROLE_ADMIN')">
+            <a th:href="@{new}">Create new user</a>
+        </div>
+        <div class="container">
             <br/><br/>
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
+                        <th>First name</th>
+                        <th>Last name</th>
                         <th>Email</th>
-                        <th>Role</th>
-                        <th sec:authorize="hasRole('ROLE_ADMIN')">Option</th>
+                        <th>Roles</th>
+                        <th sec:authorize="hasRole('ROLE_ADMIN')">Options</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="user : ${users}">
+                        <td th:text="${user.firstname}">First name</td>
+                        <td th:text="${user.lastname}">Last name</td>
                         <td th:text="${user.email}">Email</td>
-                        <td th:text="${user.role}">Role</td>
+                        <td>
+                            <table class="table">
+                                <tr th:each="r : ${user.roles}">
+                                    <td th:text="${r.authority}">Role</td>
+                                </tr>
+                            </table>
+                        </td>
                         <td sec:authorize="hasRole('ROLE_ADMIN')">
-                            <a th:href="@{edit/{id}(id = ${user.id})}">Edit</a>
-                            &nbsp;&nbsp;&nbsp;
-                            <a th:href="@{delete/{id}(id = ${user.id})}">Delete</a>
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td><a th:href="@{edit/{id}(id = ${user.id})}">Edit</a></td>
+                                        <td><a th:href="@{delete/{id}(id = ${user.id})}">Delete</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </td>
                     </tr>
                 </tbody>

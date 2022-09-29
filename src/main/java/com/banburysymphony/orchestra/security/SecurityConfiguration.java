@@ -9,6 +9,7 @@ package com.banburysymphony.orchestra.security;
  *
  * @author dave.settle@osinet.co.uk on 24 Aug 2022
  */
+import com.banburysymphony.orchestra.data.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -41,8 +42,9 @@ public class SecurityConfiguration {
                 .authorizeRequests().antMatchers("/css/*").permitAll().and()
                 .authorizeRequests().antMatchers("/images/**").permitAll().and()
                 .authorizeRequests().antMatchers("/concert/programme/*").permitAll().and()
+                .authorizeRequests().antMatchers("/plan/**").hasRole(Role.Name.TRUSTEE.name()).and()
                 .authorizeRequests().antMatchers("/user/bootstrap").permitAll().and()
-                .authorizeRequests().antMatchers("/**").hasRole("ADMIN").and()
+                .authorizeRequests().antMatchers("/**").hasRole(Role.Name.ADMIN.name()).and()
                 .formLogin().permitAll();
         return http.build();
     }

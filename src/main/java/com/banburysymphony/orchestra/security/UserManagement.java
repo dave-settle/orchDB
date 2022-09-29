@@ -9,6 +9,7 @@ package com.banburysymphony.orchestra.security;
  *
  * @author dave.settle@osinet.co.uk on 25 Aug 2022
  */
+import com.banburysymphony.orchestra.jpa.RoleRepository;
 import com.banburysymphony.orchestra.jpa.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +30,13 @@ public class UserManagement {
     @Autowired
     PasswordEncoder passwordEncoder;    
     
+    @Autowired
+    RoleRepository roleRepository;
+    
     @Bean
     public UserDetailsManager userDetailsManager() {
         log.debug("returning appDetailsManager");
-        return new AppUserDetailsManager(userRepository, passwordEncoder);
+        return new AppUserDetailsManager(userRepository, passwordEncoder, roleRepository);
     }
 
 }

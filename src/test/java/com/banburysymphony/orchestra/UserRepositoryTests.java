@@ -8,6 +8,7 @@ package com.banburysymphony.orchestra;
  *
  * @author dave.settle@osinet.co.uk on 24 Aug 2022
  */
+import com.banburysymphony.orchestra.data.Role;
 import com.banburysymphony.orchestra.data.User;
 import com.banburysymphony.orchestra.jpa.UserRepository;
 import java.util.Optional;
@@ -45,7 +46,8 @@ public class UserRepositoryTests {
     @Test
     public void testCreateUser() {
         String username = "dave.settle@osinet.co.uk";
-        User user = new User(username, "pw@Corner", User.ROLE_ADMIN);
+        User user = new User(username, "pw@Corner");
+        user.getRoles().add(new Role(Role.Name.ADMIN.toString()));
         /*
          * Using the userDetailsManager, create an entry if not already present
          */

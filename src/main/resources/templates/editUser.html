@@ -3,13 +3,122 @@
 Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
 Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
 -->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="header :: common_header(~{::title}, ~{}, ~{::script})">
+        <title th:text="${user.id > 0} ? 'Edit User' : 'Create User'">Create or Edit User</title>
+        <script>
+            function confirmPasswords() {
+                var pw = document.forms['userForm'].elements['password'].value;
+                var conf = document.forms['userForm'].elements['password_conf'].value;
+                if (pw !== conf) {
+                    alert("passwords do not match");
+                }
+                return pw === conf;
+            }
+            ;
+            $().ready(function () {
+                $("#userForm").validate({
+                    rules: {
+                        firstname: {
+                            required: true,
+                            minlength: 2,
+                            maxlength: 40
+                        },
+                        lastname: {
+                            required: true,
+                            minlength: 2,
+                            maxlength: 40
+                        },
+                        password: {
+                            required: true,
+                            minlength: 5
+                        },
+                        password_conf: {
+                            required: true,
+                            minlength: 5,
+                            equalTo: "#password"
+                        },
+                        email: {
+                            required: true,
+                            email: true
+                        }
+                    },
+                    messages: {
+                        firstname: "Please enter your firstname",
+                        lastname: "Please enter your lastname",
+                        username: {
+                            required: "Please enter a username",
+                            minlength: "Your username must consist of at least 2 characters"
+                        },
+                        password: {
+                            required: "Please provide a password",
+                            minlength: "Your password must be at least 5 characters long"
+                        },
+                        password_conf: {
+                            required: "Please provide a password",
+                            minlength: "Your password must be at least 5 characters long",
+                            equalTo: "Please enter the same password as above"
+                        },
+                        email: "Please enter a valid email address"
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
-        <div>TODO write content</div>
+        <!-- pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"  -->
+        <h1 th:text="${user.id > 0} ? 'Edit User' : 'Create User'">Edit User</h1>
+        <div th:include="header :: options"/>
+        <p th:text="#{intro.welcome}">
+            This is the new form
+        </p>
+        <div class="container">
+            <form id="userForm" action="#" th:action="@{/user/save}" th:object="${user}" method="post" class="row g-3 col-md-8">
+                <fieldset>
+                    <div class="mb-3">
+                        <label for="firstname" class="form-label">Firstname</label>
+                        <div class="input-group">
+                            <input th:field="*{firstname}" type="text" class="form-control" id="firstname" name="firstname" placeholder="Firstname" required="required"/>
+                        </div>
+
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastname" class="form-label">Lastname</label>
+                        <div class="input-group">
+                            <input th:field="*{lastname}" type="text" class="form-control" id="lastname" name="lastname" placeholder="Lastname" required="required"/>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text">@</span>
+                            <input th:field="*{email}" type="email" class="form-control" id="email" name="email" placeholder="my.email@example.com" 
+                                   th:readonly="${not #strings.isEmpty(user.email)}" required="required"/>
+                        </div>
+
+                    </div>
+                    <th:block th:if="${#strings.isEmpty(user.email)}">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input th:field="*{password}" type="password" class="form-control" id="password" name="password" required="required"/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password_conf" class="form-label">Confirm password</label>
+                            <input type="password" class="form-control" id="password_conf" name="password_conf" required="required"/>
+                        </div>
+                    </th:block>
+                    <div class="mb-3">
+                        <th:block th:each="r : ${available}">
+                            <label class="form-label" text="role" th:text="#{role.__${r.toString()}__}">Role name</label>
+                            <input class="checkbox" type="checkbox" name="required" th:value="${r.id}" th:checked="${#sets.contains(current, r.toString())}"/>
+                        </th:block>
+                    </div>
+                </fieldset>
+                <div class="col-12">
+                    <input class="submit" type="submit" value="Submit"/>
+                </div>
+            </form> <!-- userForm -->
+        </div>
     </body>
 </html>

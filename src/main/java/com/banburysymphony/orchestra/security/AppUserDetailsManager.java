@@ -8,10 +8,14 @@ package com.banburysymphony.orchestra.security;
  *
  * @author dave.settle@osinet.co.uk on 24 Aug 2022
  */
+import com.banburysymphony.orchestra.data.Role;
 import com.banburysymphony.orchestra.data.User;
+import com.banburysymphony.orchestra.jpa.RoleRepository;
 import com.banburysymphony.orchestra.jpa.UserRepository;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -27,42 +31,55 @@ public class AppUserDetailsManager implements UserDetailsManager {
 
     UserRepository userRepository;
 
+    RoleRepository roleRepository;
+
     PasswordEncoder passwordEncoder;
 
-    public AppUserDetailsManager(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AppUserDetailsManager(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
         log.debug("created application user details manager");
     }
 
     /**
-     * Convert a list of authorities to a single string
+     * Find all of the roles from the database, creating any that are not
+     * present
+     *
      * @param auths
-     * @return 
+     * @return
      */
-    public String authority(Collection<? extends GrantedAuthority> auths) {
-        String result = null;
-        for(GrantedAuthority a: auths)
-            result = a.toString();
+    public Set<Role> collectAuthorities(Collection<? extends GrantedAuthority> auths) {
+        Set<Role> result = new HashSet<>();
+        for (GrantedAuthority a : auths) {
+            Optional<Role> db = roleRepository.findByAuthority(a.getAuthority());
+            Role r = db.isEmpty() ? roleRepository.save(new Role(a.getAuthority())) : db.get();
+            result.add(r);
+        }
         return result;
     }
+
     @Override
     public void createUser(UserDetails user) {
-        userRepository.save(new User(user.getUsername(), passwordEncoder.encode(user.getPassword()), authority(user.getAuthorities())));
+        /*
+         * Convert the generic UserDetails to a specific User
+         */
+        User u = new User(user.getUsername(), passwordEncoder.encode(user.getPassword()));
+        u.setRoles(collectAuthorities(user.getAuthorities()));
+        userRepository.save(u);
     }
 
     @Override
     public void updateUser(UserDetails user) {
         Optional<User> u = userRepository.findByEmail(user.getUsername());
-        if (u.isPresent()) {
-            log.debug("updating " + user.getUsername());
-            User existing = u.get();
-            existing.setPassword(passwordEncoder.encode(user.getPassword()));
-            existing.setRole(authority(user.getAuthorities()));
-            userRepository.save(existing);
-        } else {
+        if (u.isEmpty()) {
             throw new UnsupportedOperationException("User " + user.getUsername() + " not found");
         }
+        log.debug("updating " + user.getUsername());
+        User existing = u.get();
+        existing.setPassword(passwordEncoder.encode(user.getPassword()));
+        existing.setRoles(collectAuthorities(user.getAuthorities()));
+        userRepository.save(existing);
     }
 
     @Override
@@ -78,17 +95,17 @@ public class AppUserDetailsManager implements UserDetailsManager {
 
     @Override
     public void changePassword(String oldPassword, String newPassword) {
-        String currentUser = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<User> u = userRepository.findByEmail(currentUser);
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> u = userRepository.findByEmail(user.getEmail());
         if (u.isEmpty()) {
-            throw new UnsupportedOperationException("Current user " + currentUser + " not found");
+            throw new UnsupportedOperationException("Current user " + user.getEmail() + " not found");
         }
         User existing = u.get();
         if (!passwordEncoder.matches(oldPassword, existing.getPassword())) {
             log.warn("old password is <" + existing.getPassword() + "> which does not match <" + oldPassword);
-            throw new UnsupportedOperationException("Old password for " + currentUser + " does not match");
+            throw new UnsupportedOperationException("Old password for " + user.getEmail() + " does not match");
         }
-        log.debug("changing password for " + currentUser);
+        log.debug("changing password for " + user.getEmail());
         existing.setPassword(passwordEncoder.encode(newPassword));
         existing = userRepository.save(existing);
     }
@@ -102,8 +119,9 @@ public class AppUserDetailsManager implements UserDetailsManager {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> u = userRepository.findByEmail(username);
-        if(u.isPresent())
+        if (u.isPresent()) {
             return u.get();
+        }
         throw new UsernameNotFoundException(" user " + username + " not found");
     }
 }
