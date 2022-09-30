@@ -57,7 +57,7 @@ public class UserController {
     @Autowired
     RoleRepository roleRepository;
 
-    @Value("${bso.default.user.name:dave.settle@osinet.co.uk}")
+    @Value("${bso.default.user.name}")
     String username = "yyyy";
 
     @Value("${bso.default.user.password}")
@@ -131,8 +131,7 @@ public class UserController {
              */
             log.warn("Updating " + username + " to admin role");
             User u = userRepository.findByEmail(username).orElseThrow();
-            Optional<Role> result = roleRepository.findByAuthority(Role.Name.ADMIN.toString());
-            Role r = buildRole(new Role(Role.Name.ADMIN));
+            Role r = UserController.this.findRole(Role.Name.ADMIN.getId());
             u.getRoles().add(r);
             userRepository.save(u);
         }
@@ -143,10 +142,10 @@ public class UserController {
      * @param ids
      * @return a set of database records
      */
-    public Set<Role> buildRoles(int[] ids) {
+    public Set<Role> findRoles(int[] ids) {
         Set<Role> result = new HashSet<>();
         for (int id : ids) {
-            result.add(buildRole(id));
+            result.add(UserController.this.findRole(id));
         }
         return result;
     }
@@ -155,25 +154,19 @@ public class UserController {
      * @param id
      * @return 
      */
-    public Role buildRole(int id) {
+    public Role findRole(int id) {
         Role r = Role.findRole(id);
         if (r == null)
-            throw new IllegalArgumentException("role " + r + " not found");
-        return buildRole(r);
+            throw new IllegalArgumentException("role name " + id + " not found");
+        return findRole(r);
     }
     /**
      * Handy mechanism for finding the database record relating to the role
      * @param r
      * @return 
      */
-    public Role buildRole(Role r) {
-        Role result = null;
-        Optional<Role> opt = roleRepository.findByAuthority(r.getAuthority());
-        if(opt.isEmpty()) {
-            result = roleRepository.save(r);
-        }
-        else result = opt.get();
-        return result;
+    public Role findRole(Role r) {
+        return roleRepository.findByAuthority(r.getAuthority()).orElse(roleRepository.save(r));
     }
     
     @RequestMapping(path = "/delete/{id}", method = RequestMethod.GET)
@@ -182,7 +175,7 @@ public class UserController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user id: " + id));
         log.debug("deleting user " + u);
         userRepository.delete(u);
-       return "redirect:/user/list";
+        return "redirect:/user/list";
     }
 
     @RequestMapping(path = "/edit/{id}", method = RequestMethod.GET)
@@ -199,18 +192,6 @@ public class UserController {
         model.addAttribute("current", current);
         return "editUser";
     }
-// TODO: this mapping is not required
-    @PostMapping("/create")
-    public String addUser(@Valid User user, @RequestParam(value = "required", required = false) int[] req_roles, BindingResult result, Model model) {
-        if (result.hasErrors()) {
-            log.warn("cannot add user " + user + ": " + result);
-            return "redirect:/user/new";
-        }
-        log.warn("Creating user " + user + " with roles [" + Arrays.toString(req_roles) + "]");
-        user.setRoles(buildRoles(req_roles));
-        //userRepository.save(user);
-        return "redirect:/user/list";
-    }
 
     @RequestMapping(path = "/save", method = RequestMethod.POST)
     public String update(@Valid @ModelAttribute("user") User user, @RequestParam(value = "required", required = false) int[] req_roles, BindingResult result) 
@@ -221,7 +202,7 @@ public class UserController {
         }
         log.warn("Saving user " + user + " with roles [" + Arrays.toString(req_roles) + "]");
         User dbuser = userRepository.findByEmail(user.getEmail()).orElseGet(() -> {log.warn("user " + user.getEmail() +" not found");return user;});
-        dbuser.setRoles(buildRoles(req_roles));
+        dbuser.setRoles(findRoles(req_roles));
         dbuser.setFirstname(user.getFirstname());
         dbuser.setLastname(user.getLastname());
         dbuser = userRepository.save(dbuser);
@@ -266,16 +247,4 @@ public class UserController {
         userDetailsManager.changePassword(oldPassword, newPassword);
         return "redirect:/user/list";
     }
-
-    @RequestMapping(path = "/delete/{id}", method = RequestMethod.POST)
-    public String update(Model model, @PathVariable(name = "id", required = true) int id) {
-        log.debug("deleting user " + id);
-        Optional<User> u = userRepository.findById(id);
-        if (u.isPresent()) {
-            log.debug("deleting user " + id);
-            userRepository.deleteById(id);
-        }
-        return "redirect:/user/list";
-    }
-
 }

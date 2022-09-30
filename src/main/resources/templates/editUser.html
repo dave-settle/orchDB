@@ -108,12 +108,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             <input type="password" class="form-control" id="password_conf" name="password_conf" required="required"/>
                         </div>
                     </th:block>
-                    <div class="mb-3">
-                        <th:block th:each="r : ${available}">
-                            <label class="form-label" text="role" th:text="#{role.__${r.toString()}__}">Role name</label>
-                            <input class="checkbox" type="checkbox" name="required" th:value="${r.id}" th:checked="${#sets.contains(current, r.toString())}"/>
-                        </th:block>
-                    </div>
+                    <th:block th:each="r : ${available}">
+                        <div class="form-check">
+                            <label class="form-check-label" text="role" th:text="#{role.__${r.toString()}__}">Role name</label>
+                            <input class="form-check-input" type="checkbox" name="required" th:value="${r.id}" th:checked="${#sets.contains(current, r.toString())}"/>
+                        </div>
+                    </th:block>
                 </fieldset>
                 <div class="col-12">
                     <input class="submit" type="submit" value="Submit"/>
