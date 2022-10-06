@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="header :: common_header(~{::title}, ~{::link}, ~{::script})">
+        <title th:text="${concert.id > 0} ? 'Edit Plan' : 'Create Plan'">Create or Edit Planned Concert</title>
+
+        <link rel="stylesheet" type="text/css" href="vendor/select2/dist/css/select2.min.css"
+              th:href="@{/webjars/select2/4.0.13/css/select2.min.css}" />
+        <script src="vendor/select2/dist/js/select2.min.js"
+        th:src="@{/webjars/select2/4.0.13/js/select2.js}"></script>
+
+        <script>
+            $(document).ready(function () {
+                $('#composer').change(function (event) {
+                    updateTitleList();
+                });
+                $("#composer").select2({
+                    tags: true
+                });
+                $("#titleList").select2({
+                    tags: true
+                });
+                $("#soloist").select2({
+                    tags: true
+                });
+                $("#skill").select2({
+                    tags: true
+                });
+
+            });
+
+            function updateTitleList() {
+                $.ajax({
+                    dataType: "JSON",
+                    url: "/piece/listByComposerAjax",
+                    type: "GET",
+                    data: {
+                        nameXX: "Elgar",
+                        name: $('#composer option:selected').text(),
+                        filler: "some text"
+                    },
+                    success: function (result) {
+                        var list = $('#titleList');
+                        list.empty();
+                        $.each(result, function (index, piece) {
+                            var opt = document.createElement('option');
+                            opt.text = piece.title;
+                            opt.value = piece.title;
+                            list.append(opt);
+                        });
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <div th:include="header :: options"/>
+        <h1>Edit Plan</h1>
+        <br/>
+        <!-- window.location.href
+        <input type="text" list="cars" />
+<datalist id="cars">
+  <option>Volvo</option>
+  <option>Saab</option>
+  <option>Mercedes</option>
+  <option>Audi</option>
+</datalist> -->
+        <div class="container">
+            <form action="#" class="form row" th:action="@{/plan/save}" th:object="${concert}" method="post">
+                <fieldset>
+                    <div th:if="${#fields.hasAnyErrors()}">
+                        <ul>
+                            <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
+                        </ul>
+                    </div>
+                    <div class="mb-3">
+                        <label for="concertId" class="form-label">Concert ID</label>
+                        <input id="concertId" type="text" th:field="*{id}" readonly="readonly"/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="concertDate" class="form-label">Concert Date</label>
+                        <input class="mb-3" id="concertDate" type="date" th:field="*{date}"/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="venue" class="form-label">Venue</label>
+                        <select class="mb-3" th:field="*{venue}" id="venue">
+                            <option th:each="v : ${venues}" th:text="${v.name}" th:value="${v.id}"
+                                    th:selected="${v.name} == ${concert.venue.name}">Venue name</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="conductor" class="form-label">Conductor</label>
+                        <select class="mb-3" th:field="*{conductor}">
+                            <option th:each="c : ${conductors}" th:text="${c.name}" th:value="${c.id}"
+                                    th:selected="${c.name} == ${concert.conductor.name}">Conductor name</option>
+                        </select>
+                    </div>
+                    <input type="hidden" th:field="*{soloists}"/>
+                    <input type="hidden" th:field="*{pieces}"/>
+                </fieldset>
+                <div>
+                    <button class="btn btn-primary" type="submit">Update plan</button> 
+                </div>
+            </form>
+        </div>
+        <hr/>
+        <!-- pieces -->
+        <div class="container">
+            <div class="mb-3">
+                <label for="pieces" class="form-label">Pieces</label>
+                <table class="table" id="pieces" th:field="*{pieces}">
+                    <tr th:each="p : ${concert.pieces}">
+                        <td th:text="${p.composer}">Composer</td>
+                        <td th:text="${p.title}">Title</td>
+                        <td>
+                            <a href="#" th:href="@{/plan/removePiece(planId=${concert.id},pieceId=${p.id})}">Remove</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <label for="pieceForm" class="form-label">Add new piece: </label>
+            <form class="row g-3" id="pieceForm" action="#" th:action="@{/plan/addPiece}" method="post">
+                <input id="planId" type="hidden" th:value="${concert.id}" name="planId"/>
+                <!-- Allow a new piece to be added -->
+                <!--<th:block sec:authorize="hasRole('ROLE_ADMIN')">-->
+                <div class="col-3" >
+                    <label for="composer" class="form-label">Composer: </label>
+                    <select id="composer" class="form-control" name="composer">
+                        <option th:each="c : ${composers}" th:text="${c}" th:value="${c}">Composer Name</option>
+                    </select>
+                </div>
+                <div class="col-5">
+                    <!--
+                    <input type="text" class="mb-3" list="composerList" id="composer" name="composer"/>
+                    <datalist id="composerList">
+                        <option th:each="c : ${composers}" th:text="${c}" th:value="${c}">Composer Name</option>
+                    </datalist>
+                    -->
+                    <label for="titleList" class="form-label">Title:</label>
+                    <select class="form-control" id="titleList" name="title" > <!-- style="width: 60%" -->
+                        <option value="0">Choose composer ...</option>
+                    </select>
+
+                    <!--
+                    <input id="title" class="mb-3" type="text" list="titleList" name="title"/>
+                    <datalist id="titleList">
+                        <option value="0">Choose ...</option>
+                    </datalist>
+                    -->                        
+                </div>
+                <!--</th:block>-->
+                <div class="col-2">
+                    <button class="btn btn-primary" type="submit">Add piece</button>                
+                </div>
+            </form>
+        </div>
+        <hr/>
+        <!-- soloists -->
+        <div class="container">
+            <div class="mb-3">
+                <label for="soloists" class="form-label">Soloists</label>
+                <table class="table" id="soloists" th:field="*{soloists}">
+                    <tr th:each="e : ${concert.soloists}">
+                        <td th:text="${e.artist.name}">Composer</td>
+                        <td th:text="${e.skill}">Skill</td>
+                        <td>
+                            <a href="#" th:href="@{/plan/removeEngagement(planId=${concert.id},engagementId=${e.id})}">Remove</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!--<th:block sec:authorize="hasRole('ROLE_ADMIN')">-->
+            <label for="soloistForm" class="form-label">Add new soloist </label>
+            <form class="row g-3" id="soloistForm" action="#" th:action="@{/plan/addEngagement}" method="post">
+                <input id="planId2" type="hidden" th:value="${concert.id}" name="planId"/>
+                <!-- Allow a new piece to be added -->
+                <div class="col-3" >
+                    <label for="soloist" class="form-label">Soloist: </label>
+                    <select id="soloist" class="form-control" name="soloist">
+                        <option th:each="a : ${artists}" th:text="${a.name}" th:value="${a.name}">Artist's Name</option>
+                    </select>
+                </div>
+                <div class="col-5">
+                    <label for="skill" class="form-label">Instrument: </label>
+                    <select class="form-control" id="skill" name="skill" > 
+                        <option th:each="s : ${skills}" th:text="${s}" th:value="${s}">Skill Name</option>
+                    </select>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-primary" type="submit">Add soloist</button>                
+                </div>
+            </form>
+            <!--</th:block>-->
+        </div>
+    </body>
+</html>

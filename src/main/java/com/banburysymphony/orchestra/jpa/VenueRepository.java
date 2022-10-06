@@ -7,13 +7,13 @@ package com.banburysymphony.orchestra.jpa;
 
 import com.banburysymphony.orchestra.data.Venue;
 import java.util.Optional;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  * Methods for accessing Venue records
  * @author dave.settle@osinet.co.uk on 19-Aug-2022
  */
-public interface VenueRepository extends CrudRepository<Venue, Integer> {
+public interface VenueRepository extends PagingAndSortingRepository<Venue, Integer> {
     
     public Optional<Venue> findByName(String name);
 

@@ -74,7 +74,7 @@ public class UserController {
     }
 
     /**
-     * List all of the users
+     * Create a new user - provide a blank template and supporting objects
      *
      * @param model
      * @return

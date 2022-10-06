@@ -20,11 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -81,7 +84,7 @@ public class PieceController {
      * @param name
      * @return 
      */
-    @RequestMapping(path = "/listByComposer", method = RequestMethod.GET)
+    @GetMapping(path = "/listByComposer")
     public String listPiecesByComposer(Model model, @RequestParam(name = "name", required = true) String name) {
         log.debug("Listing all pieces by composer " + name);
         Iterable<Piece> pieces;
@@ -89,18 +92,23 @@ public class PieceController {
         model.addAttribute("pieces", pieces);
         return "listPieces";
     }
+    /**
+     * AJAX method for listing pieces by a given composer
+     * @param name the name of the composer
+     * @return a list of the pieces already played
+     */
+    @GetMapping(path = "/listByComposerAjax")
+    public @ResponseBody Iterable<Piece> listPiecesByComposerAjax(@RequestParam String name) {
+        log.debug("AJAX listing all pieces by composer [" + name + "]");
+        return pieceRepository.findAllByComposer(name, Sort.by(Sort.Direction.ASC, "title"));
+    }
 
-    @RequestMapping(path = "/edit/{id}")
-    public ModelAndView getPiece(@PathVariable(name = "id", required = true) int id) {
-        ModelAndView mav = new ModelAndView("listPieces");
+    @GetMapping(path = "/edit/{id}")
+    public String editPiece(Model model, @PathVariable(name = "id", required = true) int id) {
         log.info("Editing piece " + id);
-        Optional<Piece> piece = pieceRepository.findById(id);
-        if (!piece.isPresent()) {
-            return mav;
-        }
-        mav.addObject("piece", piece.get());
-        mav.setViewName("editPiece");
-        return mav;
+        Piece piece = pieceRepository.findById(id).orElseThrow();
+        model.addAttribute("piece", piece);
+        return "editPiece";
     }
 
     /**

@@ -76,18 +76,21 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <div class="container">
             <form id="userForm" action="#" th:action="@{/user/save}" th:object="${user}" method="post" class="row g-3 col-md-8">
                 <fieldset>
+                    <div th:if="${#fields.hasAnyErrors()}">
+                        <ul>
+                            <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
+                        </ul>
+                    </div>
                     <div class="mb-3">
                         <label for="firstname" class="form-label">Firstname</label>
-                        <div class="input-group">
-                            <input th:field="*{firstname}" type="text" class="form-control" id="firstname" name="firstname" placeholder="Firstname" required="required"/>
-                        </div>
+                        <input th:field="*{firstname}" type="text" class="form-control" id="firstname" name="firstname" placeholder="Firstname" required="required"/>
+                        <p th:if="${#fields.hasErrors('firstname')}" th:errorclass="error" th:errors="*{firstname}" />
 
                     </div>
                     <div class="mb-3">
                         <label for="lastname" class="form-label">Lastname</label>
-                        <div class="input-group">
-                            <input th:field="*{lastname}" type="text" class="form-control" id="lastname" name="lastname" placeholder="Lastname" required="required"/>
-                        </div>
+                        <input th:field="*{lastname}" type="text" class="form-control" id="lastname" name="lastname" placeholder="Lastname" required="required"/>
+                        <p th:if="${#fields.hasErrors('lastname')}" th:errorclass="error" th:errors="*{lastname}" />
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
@@ -96,12 +99,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             <input th:field="*{email}" type="email" class="form-control" id="email" name="email" placeholder="my.email@example.com" 
                                    th:readonly="${not #strings.isEmpty(user.email)}" required="required"/>
                         </div>
-
+                        <p th:if="${#fields.hasErrors('email')}" th:errorclass="error" th:errors="*{email}" />
                     </div>
                     <th:block th:if="${#strings.isEmpty(user.email)}">
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <input th:field="*{password}" type="password" class="form-control" id="password" name="password" required="required"/>
+                            <p th:if="${#fields.hasErrors('password')}" th:errorclass="error" th:errors="*{password}" />
                         </div>
                         <div class="mb-3">
                             <label for="password_conf" class="form-label">Confirm password</label>

@@ -48,6 +48,9 @@
                         <td sec:authorize="hasRole('ROLE_ADMIN')">
                             <a href="users" th:href="@{/user/list}">Users</a>
                         </td>
+                        <td sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_PLANNER')">
+                            <a href="plans" th:href="@{/plan/list}">Plans</a>
+                        </td>
                         <td><a href="concerts" th:href="@{/concert/list}">Concerts</a></td> 
                         <td><a href="pieces" th:href="@{/piece/list}">Pieces</a></td> 
                         <td><a href="soloists" th:href="@{/engagement/list}">Soloists</a></td> 

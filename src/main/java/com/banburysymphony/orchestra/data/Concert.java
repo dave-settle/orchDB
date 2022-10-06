@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -60,7 +61,7 @@ public class Concert {
     private Artist conductor;
         
     @OneToMany
-    private Set<Engagement> soloists;
+    private Set<Engagement> soloists = new TreeSet<>();
     
     private Boolean programmeAvailable = false;
     

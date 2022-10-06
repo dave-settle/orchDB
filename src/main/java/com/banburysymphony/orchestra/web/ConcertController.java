@@ -36,6 +36,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.slf4j.Logger;
@@ -43,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.cglib.core.CollectionUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Sort;
@@ -124,7 +128,7 @@ public class ConcertController {
     public String listConcerts(Model model) {
         log.info("Listing all concerts");
         Iterable<Concert> concerts = concertRepository.findAll(Sort.by(Direction.DESC, "date"));
-        model.addAttribute("concerts", concerts);
+        model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
 
@@ -136,7 +140,7 @@ public class ConcertController {
             throw new NoSuchElementException("Piece " + id + " not found");
         }
         List<Concert> concerts = concertRepository.findAllByPieces(piece.get(), Sort.by(Direction.DESC, "date"));
-        model.addAttribute("concerts", concerts);
+        model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
 
@@ -148,7 +152,7 @@ public class ConcertController {
         if (c.isPresent()) {
             concerts.add(c.get());
         }
-        model.addAttribute("concerts", concerts);
+        model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
 
@@ -157,7 +161,7 @@ public class ConcertController {
         log.info("Listing all concerts for conductor ID " + id);
         Optional<Artist> conductor = artistRepository.findById(id);
         List<Concert> concerts = concertRepository.findAllByConductor(conductor.get(), Sort.by(Direction.DESC, "date"));
-        model.addAttribute("concerts", concerts);
+        model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
 
@@ -165,7 +169,7 @@ public class ConcertController {
     public String listConcertsByComposer(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing composer " + name);
         List<Concert> concerts = concertRepository.findAllByComposer(name, Sort.by(Direction.DESC, "date"));
-        model.addAttribute("concerts", concerts);
+        model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
 
@@ -173,7 +177,7 @@ public class ConcertController {
     public String listConcertsBySoloist(Model model, @RequestParam(name = "id", required = true) Integer id) {
         log.info("Listing all concerts containing artist " + id);
         List<Concert> concerts = concertRepository.findAllBySoloist(id, Sort.by(Direction.DESC, "date"));
-        model.addAttribute("concerts", concerts);
+        model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
 
@@ -181,7 +185,7 @@ public class ConcertController {
     public String listConcertsBySkill(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing skill " + name);
         List<Concert> concerts = concertRepository.findAllBySkill(name, Sort.by(Direction.DESC, "date"));
-        model.addAttribute("concerts", concerts);
+        model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
 
@@ -246,7 +250,8 @@ public class ConcertController {
         Date held = new Date(sdf.parse(concertDate).getTime());
         log.debug("parsed (" + concertDate + ") as " + DateFormat.getDateInstance().format(held));
         /*
-         * Update: allow an existing concert to be re-loaded
+         * Update: allow an existing concert to be re-loaded, to allow any errors to 
+         * be corrected
          */
         Optional<Concert> current = concertRepository.findByDate(held);
         if (current.isPresent()) {
@@ -471,5 +476,17 @@ public class ConcertController {
      */
     public void setBasedir(String basedir) {
         this.basedir = basedir;
+    }
+    /**
+     * As we are now planning future concerts, the list of concerts returned
+     * by this controller should be restricted to concerts which have already
+     * happened
+     * @param concerts a list of all concerts
+     * @return concerts whose date is in the past
+     */
+    protected List<Concert> filter(Iterable<Concert> concerts) {
+        Date now = new Date(System.currentTimeMillis());
+        Predicate<Concert> byDate = concert -> concert.getDate().before(now);
+        return StreamSupport.stream(concerts.spliterator(), false).filter(byDate).collect(Collectors.toList());
     }
 }

@@ -12,7 +12,6 @@ package com.banburysymphony.orchestra.data;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,7 +31,8 @@ public class Role implements GrantedAuthority, Serializable {
         CHAIR("ROLE_CHAIR", 3),
         TREASURER("ROLE_TREASURER", 4),
         SECRETARY("ROLE_SECRETARY", 5),
-        ADMIN("ROLE_ADMIN", 6);
+        ADMIN("ROLE_ADMIN", 6),
+        PLANNER("ROLE_PLANNER", 7);
         
         private final String label;
         private int id;
