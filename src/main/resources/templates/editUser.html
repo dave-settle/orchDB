@@ -76,6 +76,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <div class="container">
             <form id="userForm" action="#" th:action="@{/user/save}" th:object="${user}" method="post" class="row g-3 col-md-8">
                 <fieldset>
+                    <input id="userId" type="hidden" th:field="*{id}"/>
+                    <input id="userPw" type="hidden" th:field="*{password}"/>
                     <div th:if="${#fields.hasAnyErrors()}">
                         <ul>
                             <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />

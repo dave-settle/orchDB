@@ -9,7 +9,7 @@
         <h1>Update Piece</h1>
         <br/>
         <form action="#" th:action="@{/piece/save}" th:object="${piece}" method="post">
-            <p>Id: <input type="text" th:field="*{id}" readonly="readonly"/></p>
+            <input type="hidden" th:field="*{id}"/>
             <p>Composer: <input type="text" th:field="*{composer}" /></p>
             <p>Title: <input type="text" th:field="*{title}" /></p>
             <p>Subtitle: <input type="text" th:field="*{subtitle}" /></p>

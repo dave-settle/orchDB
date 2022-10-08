@@ -7,10 +7,11 @@
     <body>
         <h1>Update Venue</h1>
         <br/>
-        <form action="#" th:action="@{/venue/save}" th:object="${venue}" method="post">
-            <p>Id: <input type="text" th:field="*{id}" readonly="readonly"/></p>
-            <p>Name: <input type="text" th:field="*{name}" /></p>
-            <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+        <form action="#" class="form" th:action="@{/venue/save}" th:object="${venue}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+            <label for="venueName" class="form-label"/>
+            <input id="venueName" type="text" th:field="*{name}" />
+            <button class="btn btn-primary" type="submit">Update venue</button> 
         </form> 
     </body>
 </html>

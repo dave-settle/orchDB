@@ -12,6 +12,7 @@ package com.banburysymphony.orchestra.data;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -59,6 +60,9 @@ public class Role implements GrantedAuthority, Serializable {
         public void setId(int id) {
             this.id = id;
         }
+        public String getLabel() {
+            return label;
+        }
     }
     
     private static final Logger log = LoggerFactory.getLogger(Role.class);
@@ -77,6 +81,7 @@ public class Role implements GrantedAuthority, Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
+    @Column(unique = true)
     private String authority;
 
     /**
@@ -134,5 +139,14 @@ public class Role implements GrantedAuthority, Serializable {
             }
         }
         return null;
+    }
+    
+    public static Role findRole(String name) {
+        for(Name n: Name.values()) {
+            if(n.getLabel().equals(name)) {
+                return new Role(n);
+            }
+        }
+        throw new IllegalArgumentException("no such role: " + name);
     }
 }

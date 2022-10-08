@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,6 +31,20 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "concerts")
 public class Concert {
+
+    /**
+     * @return the notes
+     */
+    public String getNotes() {
+        return notes;
+    }
+
+    /**
+     * @param notes the notes to set
+     */
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
     
     protected Concert() {};
     
@@ -64,6 +79,9 @@ public class Concert {
     private Set<Engagement> soloists = new TreeSet<>();
     
     private Boolean programmeAvailable = false;
+    
+    @Column(length = 1024)
+    private String notes;
     
     //private List<Engagement> players;
 

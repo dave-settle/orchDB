@@ -19,6 +19,7 @@ import com.banburysymphony.orchestra.jpa.RoleRepository;
 import com.banburysymphony.orchestra.jpa.UserRepository;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -138,9 +139,9 @@ public class UserController {
         return "redirect:/user/list";
     }
     /**
-     * Convert an array of UI role IDs into a set of Role records
+     * Convert an array of UI role IDs into a set of Role objects
      * @param ids
-     * @return a set of database records
+     * @return a set of Roles
      */
     public Set<Role> findRoles(int[] ids) {
         Set<Role> result = new HashSet<>();
@@ -150,7 +151,7 @@ public class UserController {
         return result;
     }
     /**
-     * Convert a role into a database object
+     * Convert a role ID into a Role object
      * @param id
      * @return 
      */
@@ -158,15 +159,20 @@ public class UserController {
         Role r = Role.findRole(id);
         if (r == null)
             throw new IllegalArgumentException("role name " + id + " not found");
-        return findRole(r);
+        return r;
     }
     /**
      * Handy mechanism for finding the database record relating to the role
      * @param r
      * @return 
      */
-    public Role findRole(Role r) {
-        return roleRepository.findByAuthority(r.getAuthority()).orElse(roleRepository.save(r));
+    public Role findRolename(String name) {
+        Optional<Role> opt = roleRepository.findByAuthority(name);
+        if(opt.isPresent())
+            return opt.get();
+        log.debug("no role record found for " + name + " - creating one");
+        Role r = Role.findRole(name);
+        return roleRepository.save(r);
     }
     
     @RequestMapping(path = "/delete/{id}", method = RequestMethod.GET)
@@ -201,11 +207,28 @@ public class UserController {
             return "editUser";
         }
         log.warn("Saving user " + user + " with roles [" + Arrays.toString(req_roles) + "]");
-        User dbuser = userRepository.findByEmail(user.getEmail()).orElseGet(() -> {log.warn("user " + user.getEmail() +" not found");return user;});
-        dbuser.setRoles(findRoles(req_roles));
-        dbuser.setFirstname(user.getFirstname());
-        dbuser.setLastname(user.getLastname());
-        dbuser = userRepository.save(dbuser);
+        // TODO: prevent password being updated via this method
+        /*
+         * Make the roles match the list of required roles provided in the request
+         */
+        Set<Role> required = findRoles(req_roles);
+        Iterator<Role> it = user.getRoles().iterator();
+        while(it.hasNext()) {
+            Role r = it.next();
+            if(!required.contains(r)) {
+                log.debug("Removing " + r);
+                it.remove();
+            }
+            required.remove(r);
+        }
+        /*
+         * Add any roles still left
+         */
+        for(Role r: required) {
+            log.debug("adding role " + r);
+            user.getRoles().add(findRolename(r.getAuthority()));
+        }
+        userRepository.save(user);
         return "redirect:/user/list";
     }
 

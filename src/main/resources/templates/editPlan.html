@@ -67,38 +67,40 @@
 </datalist> -->
         <div class="container">
             <form action="#" class="form row" th:action="@{/plan/save}" th:object="${concert}" method="post">
-                <fieldset>
-                    <div th:if="${#fields.hasAnyErrors()}">
-                        <ul>
-                            <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
-                        </ul>
-                    </div>
-                    <div class="mb-3">
-                        <label for="concertId" class="form-label">Concert ID</label>
-                        <input id="concertId" type="text" th:field="*{id}" readonly="readonly"/>
-                    </div>
-                    <div class="mb-3">
+                <input id="concertId" type="hidden" th:field="*{id}"/>
+                <div th:if="${#fields.hasAnyErrors()}">
+                    <ul>
+                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
+                    </ul>
+                </div>
+                <div class="row align-items-end">
+                    
+                    <div class="col-3">
                         <label for="concertDate" class="form-label">Concert Date</label>
                         <input class="mb-3" id="concertDate" type="date" th:field="*{date}"/>
                     </div>
-                    <div class="mb-3">
+                    <div class="col-6">
                         <label for="venue" class="form-label">Venue</label>
                         <select class="mb-3" th:field="*{venue}" id="venue">
                             <option th:each="v : ${venues}" th:text="${v.name}" th:value="${v.id}"
                                     th:selected="${v.name} == ${concert.venue.name}">Venue name</option>
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <div class="col-3">
                         <label for="conductor" class="form-label">Conductor</label>
-                        <select class="mb-3" th:field="*{conductor}">
+                        <select class="mb-3" id="conductor" th:field="*{conductor}">
                             <option th:each="c : ${conductors}" th:text="${c.name}" th:value="${c.id}"
                                     th:selected="${c.name} == ${concert.conductor.name}">Conductor name</option>
                         </select>
                     </div>
-                    <input type="hidden" th:field="*{soloists}"/>
-                    <input type="hidden" th:field="*{pieces}"/>
-                </fieldset>
-                <div>
+                </div>
+                <div class="row">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" rows="3" id="notes" th:field="*{notes}"/>
+                </div>
+                <input type="hidden" th:field="*{soloists}"/>
+                <input type="hidden" th:field="*{pieces}"/>
+                <div class="mb-3">
                     <button class="btn btn-primary" type="submit">Update plan</button> 
                 </div>
             </form>
@@ -119,7 +121,7 @@
                 </table>
             </div>
             <label for="pieceForm" class="form-label">Add new piece: </label>
-            <form class="row g-3" id="pieceForm" action="#" th:action="@{/plan/addPiece}" method="post">
+            <form class="row g-3 align-items-end" id="pieceForm" action="#" th:action="@{/plan/addPiece}" method="post">
                 <input id="planId" type="hidden" th:value="${concert.id}" name="planId"/>
                 <!-- Allow a new piece to be added -->
                 <!--<th:block sec:authorize="hasRole('ROLE_ADMIN')">-->
