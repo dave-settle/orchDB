@@ -9,12 +9,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
         <title>Concert list</title>
         <script>
             $(document).ready(function () {
+                var firstDate = new Date($("td.BSOconcertDate").first().text() + "T00:00:00Z");
+                var now = new Date();
+                var dir = firstDate > now ? "asc" : "desc";
                 var table = $('#concertTable').DataTable({
                     "language": {
                         "search": "Filter records: "
                     },
                     "lengthMenu": [ [25, 50, 100, 200, -1], [25, 50, 100, 200, "All"] ],
-                    "order": [ [0, 'desc'] ]
+                    "order": [ [0, dir] ]
                 });
             });
         </script>
@@ -63,7 +66,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                     </thead>
                     <tbody>
                         <tr th:each="concert : ${concerts}">
-                            <td th:text="${concert.date}">Date</td>
+                            <td class="BSOconcertDate" th:text="${concert.date}">Date</td>
                             <td th:with="filename=|/files/programme-${#calendars.format(concert.date,'yyyy-MM-dd')}.pdf|">
                                 <div th:text="${concert.venue.name}">Venue</div>
                                 <div th:if="${#ctx.getClass().getResource(filename) != null}">
