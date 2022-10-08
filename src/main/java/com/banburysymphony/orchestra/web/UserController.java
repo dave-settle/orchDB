@@ -106,7 +106,8 @@ public class UserController {
 
         User user = new User(username, password);
         Set<Role> roles = new HashSet<>();
-        roles.add(new Role(Role.Name.ADMIN));
+        Role adminRole = findRolename(Role.Name.ADMIN.getLabel());
+        roles.add(adminRole);
         user.setRoles(roles);
         /*
          * Using the userDetailsManager, create an entry
