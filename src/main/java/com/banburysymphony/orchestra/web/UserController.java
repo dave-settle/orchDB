@@ -133,8 +133,7 @@ public class UserController {
              */
             log.warn("Updating " + username + " to admin role");
             User u = userRepository.findByEmail(username).orElseThrow();
-            Role r = UserController.this.findRole(Role.Name.ADMIN.getId());
-            u.getRoles().add(r);
+            u.getRoles().add(adminRole);
             userRepository.save(u);
         }
         return "redirect:/user/list";
