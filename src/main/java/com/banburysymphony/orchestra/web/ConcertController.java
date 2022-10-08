@@ -118,6 +118,9 @@ public class ConcertController {
         return "redirect:/concert/list";
     }
 
+    protected Sort sortOrder() {
+        return Sort.by(Direction.DESC, "date");
+    }
     /**
      * List all of the concerts
      *
@@ -127,7 +130,7 @@ public class ConcertController {
     @RequestMapping(path = "/list", method = RequestMethod.GET)
     public String listConcerts(Model model) {
         log.info("Listing all concerts");
-        Iterable<Concert> concerts = concertRepository.findAll(Sort.by(Direction.DESC, "date"));
+        Iterable<Concert> concerts = concertRepository.findAll(sortOrder());
         model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
@@ -139,7 +142,7 @@ public class ConcertController {
         if (piece.isEmpty()) {
             throw new NoSuchElementException("Piece " + id + " not found");
         }
-        List<Concert> concerts = concertRepository.findAllByPieces(piece.get(), Sort.by(Direction.DESC, "date"));
+        List<Concert> concerts = concertRepository.findAllByPieces(piece.get(), sortOrder());
         model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
@@ -160,7 +163,7 @@ public class ConcertController {
     public String listConcertsByConductor(Model model, @RequestParam(name = "id", required = true) int id) {
         log.info("Listing all concerts for conductor ID " + id);
         Optional<Artist> conductor = artistRepository.findById(id);
-        List<Concert> concerts = concertRepository.findAllByConductor(conductor.get(), Sort.by(Direction.DESC, "date"));
+        List<Concert> concerts = concertRepository.findAllByConductor(conductor.get(), sortOrder());
         model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
@@ -168,7 +171,7 @@ public class ConcertController {
     @RequestMapping(path = "/listByComposer", method = RequestMethod.GET)
     public String listConcertsByComposer(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing composer " + name);
-        List<Concert> concerts = concertRepository.findAllByComposer(name, Sort.by(Direction.DESC, "date"));
+        List<Concert> concerts = concertRepository.findAllByComposer(name, sortOrder());
         model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
@@ -176,7 +179,7 @@ public class ConcertController {
     @RequestMapping(path = "/listBySoloist", method = RequestMethod.GET)
     public String listConcertsBySoloist(Model model, @RequestParam(name = "id", required = true) Integer id) {
         log.info("Listing all concerts containing artist " + id);
-        List<Concert> concerts = concertRepository.findAllBySoloist(id, Sort.by(Direction.DESC, "date"));
+        List<Concert> concerts = concertRepository.findAllBySoloist(id, sortOrder());
         model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }
@@ -184,7 +187,7 @@ public class ConcertController {
     @RequestMapping(path = "/listBySkill", method = RequestMethod.GET)
     public String listConcertsBySkill(Model model, @RequestParam(name = "name", required = true) String name) {
         log.info("Listing all concerts containing skill " + name);
-        List<Concert> concerts = concertRepository.findAllBySkill(name, Sort.by(Direction.DESC, "date"));
+        List<Concert> concerts = concertRepository.findAllBySkill(name, sortOrder());
         model.addAttribute("concerts", filter(concerts));
         return "listConcerts";
     }

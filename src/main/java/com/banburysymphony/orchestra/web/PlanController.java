@@ -14,13 +14,10 @@ import com.banburysymphony.orchestra.data.Concert;
 import com.banburysymphony.orchestra.data.Engagement;
 import com.banburysymphony.orchestra.data.Piece;
 import com.banburysymphony.orchestra.data.Venue;
-import com.banburysymphony.orchestra.jpa.ArtistRepository;
 import java.sql.Date;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -29,7 +26,6 @@ import java.util.stream.StreamSupport;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
@@ -250,7 +246,14 @@ public class PlanController extends ConcertController {
         Predicate<Concert> byDate = concert -> concert.getDate().after(now);
         return StreamSupport.stream(concerts.spliterator(), false).filter(byDate).collect(Collectors.toList());
     }
-
+    /**
+     * Planned concerts should be ordered in reverse direction to concerts
+     * @return ordering for plans
+     */
+    @Override
+    protected Sort sortOrder() {
+        return Sort.by(Sort.Direction.ASC, "date");
+    }
     /**
      * @return the conductorName
      */
