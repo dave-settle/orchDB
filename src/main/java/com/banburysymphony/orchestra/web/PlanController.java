@@ -16,6 +16,7 @@ import com.banburysymphony.orchestra.data.Piece;
 import com.banburysymphony.orchestra.data.Venue;
 import java.sql.Date;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -229,7 +230,43 @@ public class PlanController extends ConcertController {
             }
         }
         concertRepository.save(plan);
-        editSupport(model);
+        return "redirect:/plan/edit/" + plan.getId();
+    }
+    
+    @GetMapping(path = "/movePieceUp")
+    public String movePieceUp(Model model,
+            @RequestParam(name = "planId", required = true) int planId,
+            @RequestParam(name = "pieceIndex", required = true) int pieceIndex) {
+        log.debug("movePieceUp(planId=" + planId + ", pieceIndex=" + pieceIndex + ")");
+        Concert plan = concertRepository.findById(planId).orElseThrow();
+        /*
+         * Implementation restriction: we need to work on a copy of the list
+         * or it won't get saved properly
+         */
+        List<Piece> pieceList = plan.getPieces().stream().collect(Collectors.toList());
+        if((pieceIndex <= 0) || (pieceIndex > pieceList.size()))
+            throw new IllegalArgumentException("invalid pieceIndex: " + pieceIndex);
+        Collections.swap(pieceList, pieceIndex, pieceIndex - 1);
+        plan.setPieces(pieceList);
+        concertRepository.save(plan);
+        return "redirect:/plan/edit/" + plan.getId();
+    }
+    @GetMapping(path = "/movePieceDown")
+    public String movePieceDown(Model model,
+            @RequestParam(name = "planId", required = true) int planId,
+            @RequestParam(name = "pieceIndex", required = true) int pieceIndex) {
+        log.debug("movePieceUp(planId=" + planId + ", pieceIndex=" + pieceIndex + ")");
+        Concert plan = concertRepository.findById(planId).orElseThrow();
+        /*
+         * Implementation restriction: we need to work on a copy of the list
+         * or it won't get saved properly
+         */
+        List<Piece> pieceList = plan.getPieces().stream().collect(Collectors.toList());
+        if((pieceIndex < 0) || (pieceIndex >= pieceList.size()))
+            throw new IllegalArgumentException("invalid pieceIndex: " + pieceIndex);
+        Collections.swap(pieceList, pieceIndex, pieceIndex + 1);
+        plan.setPieces(pieceList);
+        concertRepository.save(plan);
         return "redirect:/plan/edit/" + plan.getId();
     }
     /**

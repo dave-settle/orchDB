@@ -33,7 +33,8 @@ public class Role implements GrantedAuthority, Serializable {
         TREASURER("ROLE_TREASURER", 4),
         SECRETARY("ROLE_SECRETARY", 5),
         ADMIN("ROLE_ADMIN", 6),
-        PLANNER("ROLE_PLANNER", 7);
+        PLANNER("ROLE_PLANNER", 7),
+        CONDUCTOR("ROLE_CONDUCTOR", 8);
         
         private final String label;
         private int id;
