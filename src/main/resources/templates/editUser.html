@@ -34,7 +34,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             required: true,
                             minlength: 5
                         },
-                        password_conf: {
+                        confirm_pw: {
                             required: true,
                             minlength: 5,
                             equalTo: "#password"
@@ -55,7 +55,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             required: "Please provide a password",
                             minlength: "Your password must be at least 5 characters long"
                         },
-                        password_conf: {
+                        confirm_pw: {
                             required: "Please provide a password",
                             minlength: "Your password must be at least 5 characters long",
                             equalTo: "Please enter the same password as above"
@@ -77,7 +77,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
             <form id="userForm" action="#" th:action="@{/user/save}" th:object="${user}" method="post" class="row g-3 col-md-8">
                 <fieldset>
                     <input id="userId" type="hidden" th:field="*{id}"/>
-                    <input id="userPw" type="hidden" th:field="*{password}"/>
                     <div th:if="${#fields.hasAnyErrors()}">
                         <ul>
                             <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
@@ -110,9 +109,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             <p th:if="${#fields.hasErrors('password')}" th:errorclass="error" th:errors="*{password}" />
                         </div>
                         <div class="mb-3">
-                            <label for="password_conf" class="form-label">Confirm password</label>
-                            <input type="password" class="form-control" id="password_conf" name="password_conf" required="required"/>
+                            <label for="confirm_pw" class="form-label">Confirm password</label>
+                            <input type="password" class="form-control" id="confirm_pw" name="password_conf" required="required"/>
                         </div>
+                    </th:block>
+                    <th:block th:if="${!#strings.isEmpty(user.email)}">
+                        <input id="userPw" type="hidden" th:field="*{password}"/>
                     </th:block>
                     <th:block th:each="r : ${available}">
                         <div class="form-check">

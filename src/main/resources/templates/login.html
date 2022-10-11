@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="header :: common_header(~{::title}, ~{}, ~{::script})">
+        <title>Login</title>
+        <script></script>
+    </head>
+    <body>
+        <h1>Login</h1>
+        <div class="container">
+            <form action="#" class="form row align-items-end" th:action="@{/perform_login}" method='POST'>
+                <div class="row">
+                    <label for="username" class="form-label">Username: </label>
+                    <input id="username" type="text" class="form-control" name="username"/>
+                </div>
+                <div class="row">
+                    <label for="password" class="form-label">Password: </label>
+                    <input id="password" type="password" class="form-control" name="password"/>
+                </div>
+                <div class="row">
+                    <button class="btn btn-primary" type="submit">Login</button> 
+                </div>
+            </form>
+        </div>
+    </body>
+</html>

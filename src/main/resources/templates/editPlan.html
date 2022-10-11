@@ -8,7 +8,9 @@
               th:href="@{/webjars/select2/4.0.13/css/select2.min.css}" />
         <script src="vendor/select2/dist/js/select2.min.js"
         th:src="@{/webjars/select2/4.0.13/js/select2.js}"></script>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" />
+        <!-- Bootstrap Icon font -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" 
+              th:href="@{/webjars/bootstrap-icons/1.9.1/font/bootstrap-icons.css}"/>
         <!-- Select2 setup and AJAX links -->
         
         <script>
@@ -69,7 +71,7 @@
   <option>Audi</option>
 </datalist> -->
         <div class="container">
-            <form action="#" class="form row" th:action="@{/plan/save}" th:object="${concert}" method="post">
+            <form action="#" class="form row align-items-end" th:action="@{/plan/save}" th:object="${concert}" method="post">
                 <input id="concertId" type="hidden" th:field="*{id}"/>
                 <div th:if="${#fields.hasAnyErrors()}">
                     <ul>
@@ -180,7 +182,7 @@
             </div>
             <!--<th:block sec:authorize="hasRole('ROLE_ADMIN')">-->
             <label for="soloistForm" class="form-label">Add new soloist </label>
-            <form class="row g-3" id="soloistForm" action="#" th:action="@{/plan/addEngagement}" method="post">
+            <form class="row g-3 align-items-end" id="soloistForm" action="#" th:action="@{/plan/addEngagement}" method="post">
                 <input id="planId2" type="hidden" th:value="${concert.id}" name="planId"/>
                 <!-- Allow a new piece to be added -->
                 <div class="col-3" >

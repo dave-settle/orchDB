@@ -21,14 +21,24 @@ import com.banburysymphony.orchestra.jpa.EngagementRepository;
 import com.banburysymphony.orchestra.jpa.PieceRepository;
 import com.banburysymphony.orchestra.jpa.VenueRepository;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +67,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -412,7 +423,12 @@ public class ConcertController {
         }
         return ("redirect:/concert/list");
     }
-
+    /**
+     * Download the programme PDF file, held on disk
+     * @param id the ID of the concert
+     * @return the PDF of the concert programme
+     * @throws IOException 
+     */
     @RequestMapping(value = "/programme/{id}", method = RequestMethod.GET, produces = "application/pdf")
     public ResponseEntity<InputStreamResource> downloadPDFFile(@PathVariable(name = "id", required = true) int id)
             throws IOException {
@@ -436,7 +452,68 @@ public class ConcertController {
         String date = sdf.format(concert.getDate());
         return getBasedir() + "programme-" + date + ".pdf";
     }
-
+    /**
+     * Return the concert information as a text file, in case people want to
+     * edit the information
+     * @param id
+     * @return
+     * @throws IOException 
+     */
+    @GetMapping(value = "/file/{id}", produces = "text/plain; charset=UTF-8")
+    public ResponseEntity<InputStreamResource> downloadConcertFile(@PathVariable(name = "id", required = true) int id)
+            throws IOException {
+        Concert concert = concertRepository.findById(id)
+                .orElseThrow(() -> {return new NoSuchElementException("concert " + id + " not found");});
+        String filename = "programme-" + sdf.format(concert.getDate()) + ".txt";
+        log.debug("create concert file " + filename);
+        File tempFile = File.createTempFile("concert", ".txt");
+        tempFile.deleteOnExit();
+        BufferedWriter outputFile = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), encoding));
+        dump(concert, outputFile);
+        outputFile.close();
+        /*
+         * Send the information to the user
+         */
+        InputStream r = new FileInputStream(tempFile);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData(filename, filename);
+        return ResponseEntity
+                .ok().cacheControl(CacheControl.noCache())
+                .headers(headers)
+                .contentLength(tempFile.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(new InputStreamResource(r));
+    }
+    /**
+     * Reverse the parse operation and output a text representation of the concert
+     * on the writer
+     * @param concert
+     * @param out
+     * @throws IOException 
+     */
+    protected void dump(Concert concert, BufferedWriter out) throws IOException {
+        out.append("BSO " + sdf.format(concert.getDate()));
+        out.newLine();  out.newLine();
+        out.append("Venue: " + concert.getVenue().getName());
+        out.newLine();  out.newLine();
+        out.append("Conductor: " + concert.getConductor().getName());
+        out.newLine();  out.newLine();
+        out.append("Soloist: ");
+        for(Iterator<Engagement> it = concert.getSoloists().iterator(); it.hasNext(); ) {
+            Engagement e = it.next();
+            out.append(e.getArtist().getName() + " (" + e.getSkill() + ")");
+            if(it.hasNext())
+                out.append(", ");
+        }
+        out.newLine();  out.newLine();
+        out.append("Program: "); out.newLine();
+        for(Piece p: concert.getPieces()) {
+            out.append("\t" + p.getComposer() + ": \t" + p.getTitle());
+            out.newLine();
+        }
+        out.newLine();  out.newLine();
+    }
+    
     /**
      * Fetch the artist with the given name, or a new artist if they don't exist
      *

@@ -146,7 +146,7 @@ public class UserController {
     public Set<Role> findRoles(int[] ids) {
         Set<Role> result = new HashSet<>();
         for (int id : ids) {
-            result.add(UserController.this.findRole(id));
+            result.add(findRole(id));
         }
         return result;
     }
@@ -227,6 +227,15 @@ public class UserController {
         for(Role r: required) {
             log.debug("adding role " + r);
             user.getRoles().add(findRolename(r.getAuthority()));
+        }
+        boolean newUser = user.getId() <= 0;
+        if(newUser) {
+            log.debug("creating new user " + user.getEmail() + " with password [" + user.getPassword() + "]");
+            userDetailsManager.createUser(user);
+            User dbUser = userRepository.findByEmail(user.getEmail()).orElseThrow();
+            dbUser.setFirstname(user.getFirstname());
+            dbUser.setLastname(user.getLastname());
+            user = dbUser;  // discard incoming data in place of db version
         }
         userRepository.save(user);
         return "redirect:/user/list";
