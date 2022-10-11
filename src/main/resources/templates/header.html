@@ -48,7 +48,7 @@
                     <tr>
                         <td><img src="BSO" th:attr="src=@{/images/BSO-Red-Logo2.png}" alt="BSO Image"/></td> 
                         <td th:if="${#authentication} != null">
-                            <a href="login" th:if="${#authentication.name} == 'anonymousUser'" th:href="@{/concert/login}">Login</a>
+                            <a href="login" th:if="${#authentication.name} == 'anonymousUser'" th:href="@{/perform_login}">Login</a>
                             <a href="setpassword" th:if="${#authentication.name} != 'anonymousUser'" th:href="@{/user/setpassword}">Set password</a>
                         </td>
                         <td sec:authorize="hasRole('ROLE_ADMIN')">
