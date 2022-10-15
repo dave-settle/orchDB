@@ -3,24 +3,45 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head th:replace="header :: common_header(~{::title}, ~{}, ~{::script})">
         <title>Login</title>
-        <script></script>
+        <script>
+            $().ready(function () {
+                $("#loginForm").validate({
+                    rules: {
+                        username: {
+                            required: true,
+                        },
+                        password: {
+                            required: true,
+                        }
+                    },
+                    messages: {
+                        username: {
+                            required: "Please enter a username",
+                        },
+                        password: {
+                            required: "Please provide a password",
+                        }
+                    }
+                });
+            });
+        </script>
     </head>
     <body>
-        <h1>Login</h1>
         <div class="container">
-            <form action="#" class="form row align-items-end" th:action="@{/perform_login}" method='POST'>
-                <div class="row">
+            <h1>Login</h1>
+            <form id="loginForm" action="#" class="g-3" th:action="@{/login.html}" method='POST'>
+                <div class="col-5">
                     <label for="username" class="form-label">Username: </label>
                     <input id="username" type="text" class="form-control" name="username"/>
                 </div>
-                <div class="row">
+                <div class="col-5">
                     <label for="password" class="form-label">Password: </label>
                     <input id="password" type="password" class="form-control" name="password"/>
                 </div>
-                <div class="row">
-                    <button class="btn btn-primary" type="submit">Login</button> 
-                </div>
+                <br/>
+                <button id="submitButton" class="btn btn-primary col-1" type="submit">Login</button>                 
             </form>
+            <p th:if="${loginError}" class="text-danger">Invalid username or password</p>  
         </div>
     </body>
 </html>

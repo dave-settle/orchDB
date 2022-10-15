@@ -48,7 +48,8 @@ public class SecurityConfiguration {
                 .authorizeRequests().antMatchers("/user/bootstrap").permitAll().and()
                 .authorizeRequests().antMatchers("/**").hasRole(ADMIN.name()).and()
                 .formLogin()
-                    //.loginPage("/login.html")
+                    .loginPage("/login.html")
+                    .failureUrl("/login-error.html") 
                     .defaultSuccessUrl("/concert/list", true)
                     .permitAll();
         return http.build();

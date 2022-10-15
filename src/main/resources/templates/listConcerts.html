@@ -28,7 +28,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
             <h1>Concert List</h1>
             <p/>
 
-            <div sec:authorize="hasRole('ROLE_ADMIN')">
+            <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_PLANNER')">
                 <a href="#" th:href="@{new}">Create new plan</a>
                 <form class="row align-items-end" method="POST" enctype="multipart/form-data" action="#" th:action="@{upload}">
                     <div class="col-6">
