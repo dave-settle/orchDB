@@ -124,7 +124,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                                 <a th:href="@{edit/{id}(id = ${concert.id})}" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a th:href="@{delete/{id}(id = ${concert.id})}" title="Delete" onclick="return confirm('Delete: are you sure')">
+                                <a th:href="@{delete/{id}(id = ${concert.id})}" title="Delete" onclick="return confirm('Delete: are you sure?')">
                                     <i class="bi bi-trash"></i>
                                 </a>
                                 <a id="concertNote" th:if="${!#strings.isEmpty(concert.notes)}" href="#" data-bs-toggle="tooltip" th:title="${concert.notes}">
