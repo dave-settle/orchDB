@@ -38,7 +38,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 <form class="row align-items-end" method="POST" enctype="multipart/form-data" action="#" th:action="@{upload}">
                     <div class="col-6">
                         <label for="fileUpload" class="form-label">File to upload:</label>
-                        <input class="form-control" id="fileUpload" type="file"/>
+                        <input class="form-control" id="fileUpload" name="file" type="file"/>
                     </div>
                     <div class="col-3">
                         <button type="submit" class="btn btn-primary">Upload concert file</button>
@@ -48,7 +48,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 <form class="row align-items-end" method="POST" enctype="multipart/form-data" action="#" th:action="@{uploadZip}">
                     <div class="col-6">
                         <label for="zipUpload" class="form-label">ZIP file to upload:</label>
-                        <input class="form-control" id="zipUpload" type="file"/>
+                        <input class="form-control" id="zipUpload" name="file" type="file"/>
                     </div>
                     <div class="col-3">
                         <button type="submit" class="btn btn-primary">Upload ZIP</button>
