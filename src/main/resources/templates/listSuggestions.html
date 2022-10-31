@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="header :: common_header(~{::title}, ~{::link}, ~{::script})">
+        <title>Suggestion list</title>
+        <script>
+            $(document).ready(function () {
+                var table = $('#suggestionTable').DataTable({
+                    "language": {
+                        "search": "Filter records: "
+                    },
+                    "lengthMenu": [ [25, 50, 100, 200, -1], [25, 50, 100, 200, "All"] ],
+                    "order": [ [0, "asc"] ]
+                });
+            });
+        </script>
+        <!-- Bootstrap Icon font -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" 
+              th:href="@{/webjars/bootstrap-icons/1.9.1/font/bootstrap-icons.css}"/>
+    </head>
+    <body>
+        <h1>Suggestion List</h1>
+        <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_PLANNER')">
+            <a href="#" th:href="@{new}">Create new suggestion</a>
+        </div>
+        <div class="container">
+            <br/><br/>
+            <table id="suggestionTable" class="suggestion table table-bordered table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Piece</th>
+                        <th>Suggested by</th>
+                        <th>Reason</th>
+                        <th sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_PLANNER')">Options</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="suggestion : ${suggestions}">
+                        <td th:text="${suggestion.date}">Date</td>
+                        <td th:text="${suggestion.piece.composer + ': ' + suggestion.piece.title}">Piece</td>
+                        <td th:text="${suggestion.user.firstname + ' ' + suggestion.user.lastname}">Name</td>
+                        <td th:text="${suggestion.reason}">reason</td>
+                        <td sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_PLANNER')">
+                            <a th:href="@{edit/{id}(id = ${suggestion.id})}" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:href="@{delete/{id}(id = ${suggestion.id})}" title="Delete" onclick="return confirm('Delete: are you sure?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
