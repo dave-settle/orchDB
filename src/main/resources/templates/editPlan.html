@@ -59,7 +59,7 @@
     </head>
     <body>
         <div th:include="header :: options"/>
-        <h1>Edit Plan</h1>
+        <h1 th:text="${concert.id > 0} ? 'Edit Plan' : 'Create Plan'">Create or Edit Plan</h1>
         
         <br/>
         <!-- window.location.href

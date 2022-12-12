@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head th:replace="header :: common_header(~{::title}, ~{::link}, ~{::script})">
+        <title th:text="${suggestion.id > 0} ? 'Edit Suggestion' : 'Create Suggestion'">Create or Edit Suggestion</title>
+
+        <link rel="stylesheet" type="text/css" href="vendor/select2/dist/css/select2.min.css"
+              th:href="@{/webjars/select2/4.0.13/css/select2.min.css}" />
+        <script src="vendor/select2/dist/js/select2.min.js"
+        th:src="@{/webjars/select2/4.0.13/js/select2.js}"></script>
+        <!-- Bootstrap Icon font -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" 
+              th:href="@{/webjars/bootstrap-icons/1.9.1/font/bootstrap-icons.css}"/>
+        <!-- Select2 setup and AJAX links -->
+
+        <script>
+            $(document).ready(function () {
+                $('#composer').change(function (event) {
+                    updateTitleList();
+                });
+                $("#composer").select2({
+                    tags: true
+                });
+                $("#titleList").select2({
+                    tags: true
+                });
+            });
+
+            function updateTitleList() {
+                $.ajax({
+                    dataType: "JSON",
+                    url: "/piece/listByComposerAjax",
+                    type: "GET",
+                    data: {
+                        nameXX: "Elgar",
+                        name: $('#composer option:selected').text(),
+                        filler: "some text"
+                    },
+                    success: function (result) {
+                        var list = $('#titleList');
+                        list.empty();
+                        $.each(result, function (index, piece) {
+                            var opt = document.createElement('option');
+                            opt.text = piece.title;
+                            opt.value = piece.title;
+                            list.append(opt);
+                        });
+                    }
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <div th:include="header :: options"/>
+        <h1 th:text="${suggestion.id > 0} ? 'Edit Suggestion' : 'Create Suggestion'">Create or Edit Suggestion</h1>
+
+        <br/>
+        <div class="container">
+            <form action="#" class="form row align-items-end" th:action="@{/suggestion/save}" th:object="${suggestion}" method="post">
+                <input id="suggestionId" type="hidden" th:field="*{id}"/>
+                <div th:if="${#fields.hasAnyErrors()}">
+                    <ul>
+                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
+                    </ul>
+                </div>
+                <th:block th:if="${suggestion.id >= 0}">
+
+                </th:block>
+                <th:block th:if="${suggestion.id &lt; 0}">
+                    <div class="col-3" >
+                        <label for="composer" class="form-label">Composer: </label>
+                        <select id="composer" class="form-control" name="composer">
+                            <option th:each="c : ${composers}" th:text="${c}" th:value="${c}">Composer Name</option>
+                        </select>
+                    </div>
+                    <div class="col-5">
+                        <label for="titleList" class="form-label">Title:</label>
+                        <select class="form-control" id="titleList" name="title" >
+                            <option value="0">Choose composer ...</option>
+                        </select>
+                    </div>
+                </th:block>
+                <div class="row">
+                    <label for="notes" class="form-label">Reason</label>
+                    <textarea class="form-control" rows="3" id="reason" th:field="*{reason}"/>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-primary" type="submit">Save</button> 
+                </div>
+
+            </form>
+            TODO write content
+        </div>
+    </body>
+</html>
