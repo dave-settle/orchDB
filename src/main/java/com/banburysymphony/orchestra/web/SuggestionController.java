@@ -9,10 +9,12 @@ package com.banburysymphony.orchestra.web;
  * Controller for suggestions
  * @author dave.settle@osinet.co.uk on 31 Oct 2022
  */
+import com.banburysymphony.orchestra.data.Comment;
 import com.banburysymphony.orchestra.data.Concert;
 import com.banburysymphony.orchestra.data.Piece;
 import com.banburysymphony.orchestra.data.Suggestion;
 import com.banburysymphony.orchestra.data.User;
+import com.banburysymphony.orchestra.jpa.CommentRepository;
 import com.banburysymphony.orchestra.jpa.ConcertRepository;
 import com.banburysymphony.orchestra.jpa.SuggestionRepository;
 import org.slf4j.Logger;
@@ -26,8 +28,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller // This means that this class is a web Controller
 @RequestMapping(path = "/suggestion")
@@ -40,6 +44,9 @@ public class SuggestionController {
 
     @Autowired
     SuggestionRepository suggestionRepository;
+    
+    @Autowired
+    CommentRepository commentRepostitory;
     
     @GetMapping(path = "/new")
     public String createSuggestion(@AuthenticationPrincipal User user, Model model) {
@@ -76,6 +83,23 @@ public class SuggestionController {
         model.addAttribute("suggestion", suggestion);
         return "editSuggestion";
     }
+    
+   @PostMapping(path = "/comment/{id}")
+   public String editSuggestion(@AuthenticationPrincipal User user, Model model, @PathVariable(name = "id", required = true) int id,
+           @RequestParam(name = "comment", required = true) String comment) {
+        Suggestion suggestion = suggestionRepository.findById(id).
+                orElseThrow(() -> {
+                    return new UnsupportedOperationException("suggestion #" + id + " not found");
+                });
+        /*
+         * Add a new comment
+         */
+        Comment c = new Comment(user, comment);
+        suggestion.getComments().add(commentRepostitory.save(c));
+        suggestionRepository.save(suggestion);
+        model.addAttribute("suggestion", suggestion);
+        return "editSuggestion";       
+   }
     /**
      * Delete a specific suggestion
      * @param model
