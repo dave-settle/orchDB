@@ -28,8 +28,9 @@ public class SecurityConfiguration {
     private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
     
     /**
-     * All requests by default require HTTP BASIC authentication, apart from
+     * All requests by default require BASIC authentication, apart from
      * requests to list things
+     * Now updated to require HTTPS
      *
      * @param http
      * @return
@@ -38,6 +39,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeRequests().antMatchers("/**/list*").permitAll().and()
                 .authorizeRequests().antMatchers("/webjars/**").permitAll().and()
                 .authorizeRequests().antMatchers("/css/*").permitAll().and()
