@@ -45,6 +45,7 @@ public class SecurityConfiguration {
                 .authorizeRequests().antMatchers("/css/*").permitAll().and()
                 .authorizeRequests().antMatchers("/images/**").permitAll().and()
                 .authorizeRequests().antMatchers("/concert/programme/*").permitAll().and()
+                .authorizeRequests().antMatchers("/concert/article/*").permitAll().and()
                 .authorizeRequests().antMatchers("/concert/file/*").permitAll().and()
                 .authorizeRequests().antMatchers("/plan/**").hasAnyRole(PLANNER.name(), ADMIN.name()).and()
                 .authorizeRequests().antMatchers("/user/bootstrap").permitAll().and()

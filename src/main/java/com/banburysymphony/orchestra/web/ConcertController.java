@@ -448,6 +448,36 @@ public class ConcertController {
         String date = sdf.format(concert.getDate());
         return getBasedir() + "programme-" + date + ".pdf";
     }
+ 
+    /**
+     * Download the newspaper article file, held on disk
+     * @param id the ID of the concert
+     * @return the PDF of the concert programme
+     * @throws IOException 
+     */
+    @RequestMapping(value = "/article/{id}", method = RequestMethod.GET, produces = "application/pdf")
+    public ResponseEntity<InputStreamResource> downloadArticleFile(@PathVariable(name = "id", required = true) int id)
+            throws IOException {
+        Optional<Concert> concert = concertRepository.findById(id);
+        if(concert.isEmpty())
+            throw new NoSuchElementException("concert " + id + " not found");
+        String filename = findArticleFileName(concert.get());
+        log.debug("concert id " + id + " maps to " + filename);
+        ClassPathResource pdfFile = new ClassPathResource(filename);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData(pdfFile.getFilename(), pdfFile.getFilename());
+        return ResponseEntity
+                .ok().cacheControl(CacheControl.noCache())
+                .headers(headers)
+                .contentLength(pdfFile.contentLength())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(new InputStreamResource(pdfFile.getInputStream()));
+    }
+    public String findArticleFileName(Concert concert) {
+        String date = sdf.format(concert.getDate());
+        return getBasedir() + "programme-" + date + "-article.pdf";
+    }
+    
     /**
      * Return the concert information as a text file, in case people want to
      * edit the information
