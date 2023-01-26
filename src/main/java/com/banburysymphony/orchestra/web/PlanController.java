@@ -77,47 +77,18 @@ public class PlanController extends ConcertController {
         return "redirect:/plan/edit/" + concert.getId(); 
     }
 
-    @GetMapping(path = "/edit/{id}")
-    public String editPlan(Model model, @PathVariable(name = "id", required = true) int id) {
-        Concert concert = concertRepository.findById(id).
-                orElseThrow(() -> {
-                    return new UnsupportedOperationException("concert id " + id + " not found");
-                });
-        model.addAttribute("concert", concert);
-        return editSupport(model);
-    }
-
     /**
-     * Shared method to collecting supporting information for concert plans
-     *
+     * Edit a planned concert - now moved to superclass
+     * 
      * @param model
-     * @return
+     * @param id the ID of the concert
+     * @return the template for editing
      */
-    protected String editSupport(Model model) {
-        /*
-         * Provide lists of venues and potential conductors
-         */
-        Iterable venues = venueRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
-        model.addAttribute("venues", venues);
-        model.addAttribute("artists", artistRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
-        model.addAttribute("conductors", artistRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))); // TODO: find all conductors
-        /*
-         * Provide default list of composers & skills
-         */
-        Set<String> composers = new TreeSet<>();
-        for (Piece p : pieceRepository.findAll()) {
-            composers.add(p.getComposer());
-        }
-        model.addAttribute("composers", composers);
-        Set<String> skills = new TreeSet<>();
-        for(Concert c: concertRepository.findAll()) {
-            for(Engagement e: c.getSoloists())
-                skills.add(e.getSkill());
-        }
-        model.addAttribute("skills", skills);
-        return "editPlan";
+    @GetMapping(path = "/edit/{id}")
+    @Override
+    public String editPlan(Model model, @PathVariable(name = "id", required = true) int id) {
+        return super.editPlan(model, id);
     }
-
     /**
      * Save a concert with any updates which have been made
      *
@@ -126,12 +97,13 @@ public class PlanController extends ConcertController {
      * @return
      */
     @PostMapping(path = "/save")
+    @Override
     public String update(@Valid @ModelAttribute("concert") Concert concert, BindingResult result) {
         if (result.hasErrors()) {
             log.warn("cannot save concert " + concert + ": " + result);
             return "editUser";
         }
-        log.warn("Saving concert plan " + concert);
+        log.info("Saving concert plan " + concert);
         concertRepository.save(concert);
         return "redirect:/plan/list";
     }

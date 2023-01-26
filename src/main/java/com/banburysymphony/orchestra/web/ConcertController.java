@@ -43,11 +43,13 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,12 +65,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller // This means that this class is a web Controller
 @RequestMapping(path = "/concert")
@@ -403,6 +410,69 @@ public class ConcertController {
         return line;
     }
 
+    /**
+     * Edit a concert.
+     * 
+     * @param model
+     * @param id the ID of the concert
+     * @return page for performing action
+     */
+    @GetMapping(path = "/edit/{id}")
+    public String editPlan(Model model, @PathVariable(name = "id", required = true) int id) {
+        Concert concert = concertRepository.findById(id).
+                orElseThrow(() -> {
+                    return new UnsupportedOperationException("concert id " + id + " not found");
+                });
+        model.addAttribute("concert", concert);
+        return editSupport(model);
+    }
+    /**
+     * Shared method to collecting supporting information for concert plans
+     *
+     * @param model
+     * @return
+     */
+    protected String editSupport(Model model) {
+        /*
+         * Provide lists of venues and potential conductors
+         */
+        Iterable venues = venueRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+        model.addAttribute("venues", venues);
+        model.addAttribute("artists", artistRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
+        model.addAttribute("conductors", artistRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))); // TODO: find all conductors
+        /*
+         * Provide default list of composers & skills
+         */
+        Set<String> composers = new TreeSet<>();
+        for (Piece p : pieceRepository.findAll()) {
+            composers.add(p.getComposer());
+        }
+        model.addAttribute("composers", composers);
+        Set<String> skills = new TreeSet<>();
+        for(Concert c: concertRepository.findAll()) {
+            for(Engagement e: c.getSoloists())
+                skills.add(e.getSkill());
+        }
+        model.addAttribute("skills", skills);
+        return "editPlan";
+    }
+    /**
+     * Save a concert with any updates which have been made
+     *
+     * @param concert
+     * @param result
+     * @return
+     */
+    @PostMapping(path = "/save")
+    public String update(@Valid @ModelAttribute("concert") Concert concert, BindingResult result) {
+        if (result.hasErrors()) {
+            log.warn("cannot save concert " + concert + ": " + result);
+            return "editUser";
+        }
+        log.info("Saving concert plan " + concert);
+        concertRepository.save(concert);
+        return "redirect:/concert/list";
+    }
     /**
      * Delete a specific concert
      *
