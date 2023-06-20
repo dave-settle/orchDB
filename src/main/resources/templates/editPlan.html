@@ -140,20 +140,20 @@
                     <td th:text="${p.title}">Title</td>
                     <td>
                         <a th:if="${it.index} &gt; 0" href="#" th:href="@{/plan/movePieceUp(planId=${concert.id},pieceIndex=${it.index})}">
-                            <i class="bi bi-caret-up"></i>
+                            <i class="bi bi-arrow-up"></i>
                         </a>
                         <th:block th:if="${it.index} &lt; 1">
-                            <i  class="bi bi-dash-circle"></i>
+                            <i  class="bi bi-lock"></i>
                         </th:block>
 
                         <a href="#" th:href="@{/plan/removePiece(planId=${concert.id},pieceId=${p.id})}">
                             <i class="bi bi-trash"></i>
                         </a>
                         <a th:if="${it.count} &lt; ${it.size}" href="#" th:href="@{/plan/movePieceDown(planId=${concert.id},pieceIndex=${it.index})}">
-                            <i class="bi bi-caret-down" ></i>
+                            <i class="bi bi-arrow-down" ></i>
                         </a>
                         <th:block th:if="${it.count} &gt;= ${it.size}">
-                            <i class="bi bi-dash-circle"></i>
+                            <i class="bi bi-lock"></i>
                         </th:block>
                     </td>
                 </tr>
