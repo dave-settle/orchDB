@@ -27,7 +27,11 @@
                 $("#skill").select2({
                     tags: true
                 });
-
+                $("#conductor").select2({
+                    tags: true
+                });
+                $("#detailForm").validate();
+                $("#uploadProgrammeForm").validate();
             });
 
             function updateTitleList() {
@@ -51,130 +55,140 @@
                         });
                     }
                 });
-            }
+            };
+            
         </script>
     </head>
     <body>
         <div th:insert="~{header :: options}"/>
-        <h1>Edit Plan</h1>
-
-        <br/>
-        <!-- window.location.href
-        <input type="text" list="cars" />
-<datalist id="cars">
-  <option>Volvo</option>
-  <option>Saab</option>
-  <option>Mercedes</option>
-  <option>Audi</option>
-</datalist> -->
         <div class="container">
-            <form action="#" class="form row align-items-end" th:action="@{/plan/save}" th:object="${concert}" method="post">
-                <input id="concertId" type="hidden" th:field="*{id}"/>
-                <div th:if="${#fields.hasAnyErrors()}">
-                    <ul>
-                        <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
-                    </ul>
-                </div>
-                <div class="row align-items-end">
-
-                    <div class="col-3">
-                        <label for="concertDate" class="form-label">Concert Date</label>
-                        <input class="mb-3" id="concertDate" type="date" th:field="*{date}"/>
+            <h1>Edit Plan</h1>
+            <form id="detailForm" action="#" class="form row align-items-end" th:action="@{/plan/save}" th:object="${concert}" method="post">
+                <fieldset>
+                    <legend>Concert venue and date</legend>
+                    <input id="concertId" type="hidden" th:field="*{id}"/>
+                    <div th:if="${#fields.hasAnyErrors()}">
+                        <ul>
+                            <li th:each="err : ${#fields.allErrors()}" th:text="${err}" />
+                        </ul>
                     </div>
-                    <div class="col-6">
-                        <label for="venue" class="form-label">Venue</label>
-                        <select class="mb-3" th:field="*{venue}" id="venue">
-                            <option th:each="v : ${venues}" th:text="${v.name}" th:value="${v.id}"
-                                    th:selected="${v.name} == ${concert.venue.name}">Venue name</option>
-                        </select>
+                    <div class="row align-items-end">
+                        <div class="col-auto">
+                            <label for="concertDate" class="form-label">Concert Date</label>
+                            <input class="form-control" id="concertDate" type="date" th:field="*{date}" required="required"/>
+                        </div>
+                        <div class="col-auto">
+                            <label for="venue" class="form-label">Venue</label>
+                            <select class="form-select" th:field="*{venue}" id="venue" required="required">
+                                <option th:each="v : ${venues}" th:text="${v.name}" th:value="${v.id}"
+                                        th:selected="${v.name} == ${concert.venue.name}">Venue name</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <label for="conductor" class="form-label">Conductor</label>
+                            <select class="form-select" id="conductor" th:field="*{conductor}">
+                                <option th:each="c : ${conductors}" th:text="${c.name}" th:value="${c.id}"
+                                        th:selected="${c.name} == ${concert.conductor.name}">Conductor name</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="col-3">
-                        <label for="conductor" class="form-label">Conductor</label>
-                        <select class="mb-3" id="conductor" th:field="*{conductor}">
-                            <option th:each="c : ${conductors}" th:text="${c.name}" th:value="${c.id}"
-                                    th:selected="${c.name} == ${concert.conductor.name}">Conductor name</option>
-                        </select>
+                    <div class="row align-items-end">
+                        <div class="col-8">
+                            <label for="notes" class="form-label">Notes</label>
+                            <textarea class="form-control" rows="3" id="notes" th:field="*{notes}"/>                
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-primary" type="submit">Update plan</button> 
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <label for="notes" class="form-label">Notes</label>
-                    <textarea class="form-control" rows="3" id="notes" th:field="*{notes}"/>
-                </div>
+                </fieldset>
                 <input type="hidden" th:field="*{soloists}"/>
                 <input type="hidden" th:field="*{pieces}"/>
-                <div class="mb-3">
-                    <button class="btn btn-primary" type="submit">Update plan</button> 
-                </div>
             </form>
         </div>
         <!-- Upload programme -->
-        <hr/>
-        <div class="container">
-            
-            <form class="row align-items-end" method="POST" enctype="multipart/form-data" action="#" th:action="@{/concert/upload-programme/{id}(id = ${concert.id})}">
-                    <label for="fileUpload" class="col-3 form-label">Programme to upload:</label>
-                    <input class="col-6 form-control" id="fileUpload" name="file" type="file"/>
-                    <button type="submit" class="col-3 btn btn-primary">Upload programme file</button>
-            </form>
+        <div class="container ">
+            <th:block class="" th:with="filename=|/files/programme-${#calendars.format(concert.date,'yyyy-MM-dd')}|">
+                <div class="col-auto" th:if="${@fileStorageService.exists(filename + '.pdf')}">
+                    <a href="program/id" th:href="@{/concert/programme/{id}(id = ${concert.id})}">Programme PDF</a>
+                </div>
+                <div class="col-auto" th:if="${#ctx.getClass().getResource(filename + '-article.pdf') != null}">
+                    <a href="article/id" th:href="@{/concert/article/{id}(id = ${concert.id})}">Article</a>
+                </div>
+                <form id="programmeForm" method="POST" enctype="multipart/form-data" action="#" th:action="@{/concert/upload-programme/{id}(id = ${concert.id})}">
+                    <div class="row align-items-end">
+                        <div class="col-auto">
+                            <label for="fileUpload" class="form-label">Programme to upload:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input class="form-control" id="fileUpload" name="file" type="file" required="required"/>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Upload programme</button>            
+                        </div>
+                    </div>
+                </form>
+            </th:block>
         </div>
         <hr/>
         <!-- pieces -->
         <div class="container">
-            <div class="mb-3">
-                <span>Pieces</span>
-                <table class="table table-striped" id="pieces" th:field="*{pieces}">
-                    <tr th:each="p, it : ${concert.pieces}">
-                        <td th:text="${p.composer}">Composer</td>
-                        <td th:text="${p.title}">Title</td>
-                        <td>
-                            <a th:if="${it.index} &gt; 0" href="#" th:href="@{/plan/movePieceUp(planId=${concert.id},pieceIndex=${it.index})}">
-                                <i class="bi bi-caret-up"></i>
-                            </a>
-                            <th:block th:if="${it.index} &lt; 1">
-                                <i  class="bi bi-dash-circle"></i>
-                            </th:block>
+            <h2>Pieces</h2>
+            <table class="table table-striped" id="pieces" th:field="*{pieces}">
+                <tr th:each="p, it : ${concert.pieces}">
+                    <td th:text="${p.composer}">Composer</td>
+                    <td th:text="${p.title}">Title</td>
+                    <td>
+                        <a th:if="${it.index} &gt; 0" href="#" th:href="@{/plan/movePieceUp(planId=${concert.id},pieceIndex=${it.index})}">
+                            <i class="bi bi-caret-up"></i>
+                        </a>
+                        <th:block th:if="${it.index} &lt; 1">
+                            <i  class="bi bi-dash-circle"></i>
+                        </th:block>
 
-                            <a href="#" th:href="@{/plan/removePiece(planId=${concert.id},pieceId=${p.id})}">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                            <a th:if="${it.count} &lt; ${it.size}" href="#" th:href="@{/plan/movePieceDown(planId=${concert.id},pieceIndex=${it.index})}">
-                                <i class="bi bi-caret-down" ></i>
-                            </a>
-                            <th:block th:if="${it.count} &gt;= ${it.size}">
-                                <i class="bi bi-dash-circle"></i>
-                            </th:block>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <span>Add new piece: </span>
-            <form class="row g-3 align-items-end" id="pieceForm" action="#" th:action="@{/plan/addPiece}" method="post">
-                <input id="planId" type="hidden" th:value="${concert.id}" name="planId"/>
-                <!-- Allow a new piece to be added -->
-                <!--<th:block sec:authorize="hasRole('ROLE_ADMIN')">-->
-                <div class="col-3" >
-                    <label for="composer" class="form-label">Composer: </label>
-                    <select id="composer" class="form-control" name="composer">
-                        <option th:each="c : ${composers}" th:text="${c}" th:value="${c}">Composer Name</option>
-                    </select>
-                </div>
-                <div class="col-5">
-                    <label for="titleList" class="form-label">Title:</label>
-                    <select class="form-control" id="titleList" name="title" >
-                        <option value="0">Choose composer ...</option>
-                    </select>
-                </div>
-                <!--</th:block>-->
-                <div class="col-2">
-                    <button class="btn btn-primary" type="submit">Add piece</button>                
-                </div>
+                        <a href="#" th:href="@{/plan/removePiece(planId=${concert.id},pieceId=${p.id})}">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                        <a th:if="${it.count} &lt; ${it.size}" href="#" th:href="@{/plan/movePieceDown(planId=${concert.id},pieceIndex=${it.index})}">
+                            <i class="bi bi-caret-down" ></i>
+                        </a>
+                        <th:block th:if="${it.count} &gt;= ${it.size}">
+                            <i class="bi bi-dash-circle"></i>
+                        </th:block>
+                    </td>
+                </tr>
+            </table>
+            <!-- Allow a new piece to be added -->
+            <form id="pieceForm" action="#" th:action="@{/plan/addPiece}" method="post">
+                <fieldset>
+                    <!-- <legend>Add new piece: </legend> -->
+                    <input id="planId" type="hidden" th:value="${concert.id}" name="planId"/>
+                    <div class="row align-items-end" >
+                        <!--<th:block sec:authorize="hasRole('ROLE_ADMIN')">-->
+                        <div class="col-3" >
+                            <label for="composer" class="form-label">Composer: </label>
+                            <select id="composer" class="form-control" name="composer">
+                                <option th:each="c : ${composers}" th:text="${c}" th:value="${c}">Composer Name</option>
+                            </select>
+                        </div>
+                        <div class="col-5">
+                            <label for="titleList" class="form-label">Title:</label>
+                            <select class="form-control" id="titleList" name="title" >
+                                <option value="0">Choose composer ...</option>
+                            </select>
+                        </div>
+                        <!--</th:block>-->
+                        <div class="col-2">
+                            <button class="btn btn-primary" type="submit">Add piece</button>                
+                        </div>
+                    </div>
+                </fieldset>
             </form>
         </div>
         <hr/>
         <!-- soloists -->
         <div class="container">
-            <div class="mb-3">
-                <label for="soloists" class="form-label">Soloists</label>
+            <h2>Soloists</h2>
                 <table class="table" id="soloists" th:field="*{soloists}">
                     <tr th:each="e : ${concert.soloists}">
                         <td th:text="${e.artist.name}">Composer</td>
@@ -186,27 +200,30 @@
                         </td>
                     </tr>
                 </table>
-            </div>
             <!--<th:block sec:authorize="hasRole('ROLE_ADMIN')">-->
-            <label for="soloistForm" class="form-label">Add new soloist </label>
-            <form class="row g-3 align-items-end" id="soloistForm" action="#" th:action="@{/plan/addEngagement}" method="post">
-                <input id="planId2" type="hidden" th:value="${concert.id}" name="planId"/>
-                <!-- Allow a new piece to be added -->
-                <div class="col-3" >
-                    <label for="soloist" class="form-label">Soloist: </label>
-                    <select id="soloist" class="form-control" name="soloist">
-                        <option th:each="a : ${artists}" th:text="${a.name}" th:value="${a.name}">Artist's Name</option>
-                    </select>
-                </div>
-                <div class="col-5">
-                    <label for="skill" class="form-label">Instrument: </label>
-                    <select class="form-control" id="skill" name="skill" > 
-                        <option th:each="s : ${skills}" th:text="${s}" th:value="${s}">Skill Name</option>
-                    </select>
-                </div>
-                <div class="col-2">
-                    <button class="btn btn-primary" type="submit">Add soloist</button>                
-                </div>
+            <form id="soloistForm" action="#" th:action="@{/plan/addEngagement}" method="post">
+                <fieldset>
+                    <!-- <legend>Add new soloist</legend> -->
+                    <input id="planId2" type="hidden" th:value="${concert.id}" name="planId"/>
+                    <div class="row align-items-end">
+                        <!-- Allow a new piece to be added -->
+                        <div class="col-3" >
+                            <label for="soloist" class="form-label">Soloist: </label>
+                            <select id="soloist" class="form-control" name="soloist">
+                                <option th:each="a : ${artists}" th:text="${a.name}" th:value="${a.name}">Artist's Name</option>
+                            </select>
+                        </div>
+                        <div class="col-5">
+                            <label for="skill" class="form-label">Instrument: </label>
+                            <select class="form-control" id="skill" name="skill" > 
+                                <option th:each="s : ${skills}" th:text="${s}" th:value="${s}">Skill Name</option>
+                            </select>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-primary" type="submit">Add soloist</button>                
+                        </div>
+                    </div>
+                </fieldset>
             </form>
             <!--</th:block>-->
         </div>

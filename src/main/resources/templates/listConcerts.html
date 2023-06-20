@@ -19,6 +19,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                     "lengthMenu": [ [ 25, 50, 100, 200, -1 ], [ 25, 50, 100, 200, "All" ] ],
                     "order": [ [ 0, dir ] ]
                 });
+                $("#uploadForm").validate();
+                $("#uploadZipForm").validate();
             });
             // var noteEl = document.getElementById('concertNote');
             // var tooltip = new bootstrap.Tooltip(noteEl, options);
@@ -32,23 +34,31 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
 
             <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_PLANNER')">
                 <a href="#" th:href="@{new}">Create new plan</a>
-                <form class="row align-items-end" method="POST" enctype="multipart/form-data" action="#" th:action="@{upload}">
-                    <div class="col">
-                        <label for="fileUpload" class="form-label">File to upload:</label>
-                        <input class="form-control" id="fileUpload" name="file" type="file"/>
-                    </div>
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary">Upload concert file</button>
+                <form id="uploadForm" method="POST" enctype="multipart/form-data" action="#" th:action="@{upload}">
+                    <div class="row align-items-end">
+                        <div class="col-auto">
+                            <label for="fileUpload" class="form-label">Concert file to upload:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input class="form-control" id="fileUpload" name="file" type="file" required="required"/>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Upload concert file</button>
+                        </div>
                     </div>
                 </form>
                 <p/>
-                <form class="row align-items-end" method="POST" enctype="multipart/form-data" action="#" th:action="@{uploadZip}">
-                    <div class="col">
-                        <label for="zipUpload" class="form-label">ZIP file to upload:</label>
-                        <input class="form-control" id="zipUpload" name="file" type="file"/>
-                    </div>
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary">Upload ZIP</button>
+                <form id="uploadZipForm" method="POST" enctype="multipart/form-data" action="#" th:action="@{uploadZip}">
+                    <div class="row align-items-end" >
+                        <div class="col-auto">
+                            <label for="zipUpload" class="form-label">ZIP file to upload:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input class="form-control" id="zipUpload" name="file" type="file" required="required"/>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Upload ZIP</button>
+                        </div>                        
                     </div>
                 </form>
             </div>

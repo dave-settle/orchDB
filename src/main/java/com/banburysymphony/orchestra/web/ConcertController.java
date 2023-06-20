@@ -38,6 +38,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -450,7 +451,15 @@ public class ConcertController {
         Iterable venues = venueRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
         model.addAttribute("venues", venues);
         model.addAttribute("artists", artistRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
-        model.addAttribute("conductors", artistRepository.findAll(Sort.by(Sort.Direction.ASC, "name"))); // TODO: find all conductors
+        /*
+         * Find all of the conductors by scanning the concerts. Use a TreeSet which
+         * allows the conductors to be ordered - in this case, by name
+         */
+        Set<Artist> conductors = new TreeSet<>((Artist a1, Artist a2) -> a1.getName().compareTo(a2.getName()));
+        for(Concert c: concertRepository.findAll()) {
+            conductors.add(c.getConductor());
+        }
+        model.addAttribute("conductors", conductors); 
         /*
          * Provide default list of composers & skills
          */
