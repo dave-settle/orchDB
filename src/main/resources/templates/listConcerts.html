@@ -81,7 +81,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                             <td class="BSOconcertDate" th:text="${concert.date}">Date</td>
                             <td th:with="filename=|/files/programme-${#calendars.format(concert.date,'yyyy-MM-dd')}|">
                                 <div th:text="${concert.venue.name}">Venue</div>
-                                <div th:text="'PDF exists = ' + ${@fileStorageService.exists(filename + '.pdf')}">Programme</div>
                                 <div th:if="${@environment.getProperty('bso.file.use-file-storage-service')}">
                                     <div th:if="${@fileStorageService.exists(filename + '.pdf')}">
                                         <br/><a href="program/id" th:href="@{programme/{id}(id = ${concert.id})}">Programme PDF</a>
