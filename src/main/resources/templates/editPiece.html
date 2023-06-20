@@ -5,7 +5,7 @@
         <script></script>
     </head>
     <body>
-        <div th:include="header :: options"/>
+        <div th:insert="~{header :: options}"/>
         <h1>Update Piece</h1>
         <br/>
         <form action="#" th:action="@{/piece/save}" th:object="${piece}" method="post">

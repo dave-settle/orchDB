@@ -9,8 +9,6 @@ package com.banburysymphony.orchestra.security;
  *
  * @author dave.settle@osinet.co.uk on 24 Aug 2022
  */
-import com.banburysymphony.orchestra.data.Role;
-import com.banburysymphony.orchestra.data.Role.Name;
 import static com.banburysymphony.orchestra.data.Role.Name.ADMIN;
 import static com.banburysymphony.orchestra.data.Role.Name.PLANNER;
 import org.slf4j.Logger;
@@ -26,35 +24,62 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
-    
+
     /**
-     * All requests by default require BASIC authentication, apart from
-     * requests to list things
-     * Now updated to require HTTPS
+     * All requests by default require BASIC authentication, apart from requests
+     * to list things Now updated to require HTTPS
      *
      * @param http
      * @return
      * @throws Exception
      */
+  
+    //@Bean
+    //public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    //    http
+    //            .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+    //            .authorizeRequests().antMatchers("/**/list*").permitAll().and()
+    //            .authorizeRequests().antMatchers("/webjars/**").permitAll().and()
+    //            .authorizeRequests().antMatchers("/css/*").permitAll().and()
+    //            .authorizeRequests().antMatchers("/images/**").permitAll().and()
+    //            .authorizeRequests().antMatchers("/concert/programme/*").permitAll().and()
+    //            .authorizeRequests().antMatchers("/concert/article/*").permitAll().and()
+    //            .authorizeRequests().antMatchers("/concert/file/*").permitAll().and()
+    //            .authorizeRequests().antMatchers("/plan/**").hasAnyRole(PLANNER.name(), ADMIN.name()).and()
+    //            .authorizeRequests().antMatchers("/user/bootstrap").permitAll().and()
+    //            .authorizeRequests().antMatchers("/**").hasRole(ADMIN.name()).and()
+    //            .formLogin()
+    //            .loginPage("/login.html")
+    //            .failureUrl("/login-error.html")
+    //            .defaultSuccessUrl("/concert/list", true)
+    //            .permitAll();
+    //    return http.build();
+    //}
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .requiresChannel(channel -> channel.anyRequest().requiresSecure())
-                .authorizeRequests().antMatchers("/**/list*").permitAll().and()
-                .authorizeRequests().antMatchers("/webjars/**").permitAll().and()
-                .authorizeRequests().antMatchers("/css/*").permitAll().and()
-                .authorizeRequests().antMatchers("/images/**").permitAll().and()
-                .authorizeRequests().antMatchers("/concert/programme/*").permitAll().and()
-                .authorizeRequests().antMatchers("/concert/article/*").permitAll().and()
-                .authorizeRequests().antMatchers("/concert/file/*").permitAll().and()
-                .authorizeRequests().antMatchers("/plan/**").hasAnyRole(PLANNER.name(), ADMIN.name()).and()
-                .authorizeRequests().antMatchers("/user/bootstrap").permitAll().and()
-                .authorizeRequests().antMatchers("/**").hasRole(ADMIN.name()).and()
-                .formLogin()
-                    .loginPage("/login.html")
-                    .failureUrl("/login-error.html") 
-                    .defaultSuccessUrl("/concert/list", true)
-                    .permitAll();
+            .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+            .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/*/list**").permitAll()
+                .requestMatchers("/webjars/**").permitAll()
+                .requestMatchers("/error*").permitAll()
+                .requestMatchers("/css/*").permitAll()
+                .requestMatchers("/images/**").permitAll()
+                .requestMatchers("/concert/programme/*").permitAll()
+                .requestMatchers("/concert/article/*").permitAll()
+                .requestMatchers("/concert/file/*").permitAll()
+                .requestMatchers("/plan/**").hasAnyRole(PLANNER.name(), ADMIN.name())
+                .requestMatchers("/user/bootstrap").permitAll()
+                .requestMatchers("/**").hasRole(ADMIN.name())
+            )
+            .formLogin((form) -> form
+                .loginPage("/login.html")
+                .failureUrl("/login-error.html")
+                .permitAll()
+            )
+            .logout((logout) -> logout.permitAll());
         return http.build();
     }
- }
+
+}

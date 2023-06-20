@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
-   <head th:replace="header :: common_header(~{::title}, ~{}, ~{::script})">
+   <head th:replace="~{header :: common_header(~{::title}, ~{}, ~{::script})}">
         <title>Update Venue</title>
         <script></script>
     </head>
     <body>
+        <div th:insert="~{header :: options}"/>
         <h1>Update Venue</h1>
         <br/>
         <form action="#" class="form" th:action="@{/venue/save}" th:object="${venue}" method="post">

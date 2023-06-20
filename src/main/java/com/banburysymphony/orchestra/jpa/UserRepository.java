@@ -7,13 +7,14 @@ package com.banburysymphony.orchestra.jpa;
 
 import com.banburysymphony.orchestra.data.User;
 import java.util.Optional;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  * Direct access to User objects
  * @author dave.settle@osinet.co.uk on 24 Aug 2022
  */
-public interface UserRepository extends PagingAndSortingRepository<User, Integer> {
+public interface UserRepository extends CrudRepository<User, Integer>, PagingAndSortingRepository<User, Integer> {
 
     public Optional<User> findByEmail(String email);
 }

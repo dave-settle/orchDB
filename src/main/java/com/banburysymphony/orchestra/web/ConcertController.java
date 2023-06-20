@@ -20,6 +20,8 @@ import com.banburysymphony.orchestra.jpa.ConcertRepository;
 import com.banburysymphony.orchestra.jpa.EngagementRepository;
 import com.banburysymphony.orchestra.jpa.PieceRepository;
 import com.banburysymphony.orchestra.jpa.VenueRepository;
+import com.banburysymphony.orchestra.storage.FileStorageService;
+import jakarta.validation.Valid;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -49,14 +53,15 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.CacheControl;
@@ -65,7 +70,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -97,6 +101,9 @@ public class ConcertController {
 
     @Autowired
     EngagementRepository engagementRepository;
+    
+    @Autowired
+    FileStorageService fileStorageService;
     /**
      * Hopefully people will start using composer names with accents, but some
      * composers are commonly recorded without accents
@@ -108,6 +115,9 @@ public class ConcertController {
     private String encoding = "UTF-8";
     
     private String basedir = "/files/";
+    
+    @Value("${bso.file.use-file-storage-service}")
+    private boolean useFileStorageService = false;
 
     private static final Logger log = LoggerFactory.getLogger(ConcertController.class);
 
@@ -207,7 +217,8 @@ public class ConcertController {
     }
 
     /**
-     * Upload a simple text file
+     * Upload a simple text file describing a concert, parse this and load
+     * it into the database, replacing any existing concert details
      *
      * @param file
      * @return
@@ -490,6 +501,47 @@ public class ConcertController {
         return ("redirect:/concert/list");
     }
     /**
+     * Upload a programme file using the file storage service
+     * @param id
+     * @param file
+     * @return the next page to display
+     * @throws IOException 
+     */
+    @PostMapping(path = "/upload-programme/{id}")
+    public String uploadProgrammeFile(
+            @PathVariable(name = "id", required = true) int id,
+            @RequestParam(name = "file", required = true) MultipartFile file) throws IOException
+    {
+        Concert concert = concertRepository.findById(id).orElseThrow(() -> { return new UnsupportedOperationException("concert #"+ id + " not found");});
+        /*
+         * Find the programme file name and use just the fileName part to save the file
+         */
+        Path path = FileSystems.getDefault().getPath(findProgrammeFileName(concert));
+        log.info("saving programme file for concert #" + id + " as " + path.getFileName());
+        fileStorageService.storeFile(file, path.getFileName().toString());
+        return "redirect:/concert/list";
+    }
+/**
+     * Upload a newspaper article using the file storage service
+     * @param id the concert to associate the article with
+     * @param file the article itself
+     * @return the next page to display
+     * @throws IOException 
+     */
+    @PostMapping(path = "/upload-article/{id}")
+    public String uploadArticleFile(
+            @PathVariable(name = "id", required = true) int id,
+            @RequestParam(name = "file", required = true) MultipartFile file) throws IOException
+    {
+        Concert concert = concertRepository.findById(id).orElseThrow(() -> { return new UnsupportedOperationException("concert #"+ id + " not found");});
+        /*
+         * Find the programme file name and use just the fileName part to save the file
+         */
+        Path path = FileSystems.getDefault().getPath(findArticleFileName(concert));
+        log.info("saving programme file for concert #" + id + " as " + path.getFileName());
+        fileStorageService.storeFile(file, path.getFileName().toString());
+        return "redirect:/concert/list";
+    }    /**
      * Download the programme PDF file, held on disk
      * @param id the ID of the concert
      * @return the PDF of the concert programme
@@ -503,7 +555,11 @@ public class ConcertController {
             throw new NoSuchElementException("concert " + id + " not found");
         String filename = findProgrammeFileName(concert.get());
         log.debug("concert id " + id + " maps to " + filename);
-        ClassPathResource pdfFile = new ClassPathResource(filename);
+        /*
+         * The resources are now managed by the fileStorageService, rather than 
+         * accessed as a classpath resource
+         */
+        Resource pdfFile = useFileStorageService ? fileStorageService.getFile(filename) : new ClassPathResource(filename);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDispositionFormData(pdfFile.getFilename(), pdfFile.getFilename());
         return ResponseEntity
@@ -533,7 +589,11 @@ public class ConcertController {
             throw new NoSuchElementException("concert " + id + " not found");
         String filename = findArticleFileName(concert.get());
         log.debug("concert id " + id + " maps to " + filename);
-        ClassPathResource pdfFile = new ClassPathResource(filename);
+        /*
+         * Access to articles is now controlled by the fileStorageService
+         * rather than accessed directly on the classpath
+         */
+        Resource pdfFile = useFileStorageService ? fileStorageService.getFile(filename) : new ClassPathResource(filename);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentDispositionFormData(pdfFile.getFilename(), pdfFile.getFilename());
         return ResponseEntity

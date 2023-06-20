@@ -8,7 +8,6 @@ import com.banburysymphony.orchestra.data.Piece;
 import com.banburysymphony.orchestra.jpa.PieceRepository;
 import java.math.BigInteger;
 import java.sql.Date;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -23,12 +22,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -64,9 +61,9 @@ public class PieceController {
         Map<Integer, String> lastPlayed = new HashMap<>();
         for (Object[] f : played) {
             //log.trace("played " + f + ": [0]=" + f[0].getClass().getName() + ", [1]=" + f[1].getClass().getName() + ", [3]=" + f[3].getClass().getName());
-            BigInteger c = (BigInteger) f[1];
+            Long c = (Long) f[1];
             Integer id = (Integer) f[0];
-            frequency.put(id, c.longValue());
+            frequency.put(id, c);
             Date lp = (Date) f[3];
             /*
              * DateFormat.getDateInstance() produces a more human-readable date, but not so sortable

@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head th:replace="header :: common_header(~{::title}, ~{::link}, ~{::script})">
+    <head th:replace="~{header :: common_header(~{::title}, ~{::link}, ~{::script})}">
         <title th:text="${concert.id > 0} ? 'Edit Plan' : 'Create Plan'">Create or Edit Planned Concert</title>
 
         <link rel="stylesheet" type="text/css" href="vendor/select2/dist/css/select2.min.css"
               th:href="@{/webjars/select2/4.0.13/css/select2.min.css}" />
         <script src="vendor/select2/dist/js/select2.min.js"
         th:src="@{/webjars/select2/4.0.13/js/select2.js}"></script>
-        <!-- Bootstrap Icon font -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" 
-              th:href="@{/webjars/bootstrap-icons/1.9.1/font/bootstrap-icons.css}"/>
         <!-- Select2 setup and AJAX links -->
-        
+
         <script>
             $(document).ready(function () {
                 $('#composer').change(function (event) {
@@ -58,9 +55,9 @@
         </script>
     </head>
     <body>
-        <div th:include="header :: options"/>
+        <div th:insert="~{header :: options}"/>
         <h1>Edit Plan</h1>
-        
+
         <br/>
         <!-- window.location.href
         <input type="text" list="cars" />
@@ -110,6 +107,16 @@
                 </div>
             </form>
         </div>
+        <!-- Upload programme -->
+        <hr/>
+        <div class="container">
+            
+            <form class="row align-items-end" method="POST" enctype="multipart/form-data" action="#" th:action="@{/concert/upload-programme/{id}(id = ${concert.id})}">
+                    <label for="fileUpload" class="col-3 form-label">Programme to upload:</label>
+                    <input class="col-6 form-control" id="fileUpload" name="file" type="file"/>
+                    <button type="submit" class="col-3 btn btn-primary">Upload programme file</button>
+            </form>
+        </div>
         <hr/>
         <!-- pieces -->
         <div class="container">
@@ -126,7 +133,7 @@
                             <th:block th:if="${it.index} &lt; 1">
                                 <i  class="bi bi-dash-circle"></i>
                             </th:block>
-                            
+
                             <a href="#" th:href="@{/plan/removePiece(planId=${concert.id},pieceId=${p.id})}">
                                 <i class="bi bi-trash"></i>
                             </a>

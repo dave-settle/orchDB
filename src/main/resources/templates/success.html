@@ -1,11 +1,11 @@
 !DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
-    <head> 
+    <head th:replace="~{header :: common_header(~{::title}, ~{}, ~{})}"> 
         <title>Success</title>
         <meta charset="UTF-8" />
     </head>
     <body>
-        <div th:include="header :: options"/>
+        <div th:insert="~{header :: options}"/>
         <h1>Success</h1>
         <br/>
         <p>The operation was completed successfully</p>

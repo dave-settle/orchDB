@@ -8,6 +8,7 @@ import com.banburysymphony.orchestra.data.Piece;
 import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
@@ -16,7 +17,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * approximate titles
  * @author dave.settle@osinet.co.uk on 19-Aug-2022
  */
-public interface PieceRepository extends PagingAndSortingRepository<Piece, Integer>, ApproximateTitle {
+public interface PieceRepository extends CrudRepository<Piece, Integer>, PagingAndSortingRepository<Piece, Integer>, ApproximateTitle {
     
     public List<Piece> findAllByComposer(String composer, Sort sort);
     public List<Piece> findAllByComposerOrderByTitleAsc(String composer);

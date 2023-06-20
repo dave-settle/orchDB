@@ -5,7 +5,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head th:replace="header :: common_header(~{::title}, ~{}, ~{::script})">
+    <head th:replace="~{header :: common_header(~{::title}, ~{}, ~{::script})}">
         <title th:text="${user.id > 0} ? 'Edit User' : 'Create User'">Create or Edit User</title>
         <script>
             function confirmPasswords() {
@@ -69,7 +69,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
     <body>
         <!-- pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$"  -->
         <h1 th:text="${user.id > 0} ? 'Edit User' : 'Create User'">Edit User</h1>
-        <div th:include="header :: options"/>
+        <div th:insert="~{header :: options}"/>
         <p th:text="#{intro.welcome}">
             This is the new form
         </p>

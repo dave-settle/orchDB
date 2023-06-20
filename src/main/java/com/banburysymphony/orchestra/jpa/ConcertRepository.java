@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  * Access Concert records
  * @author dave.settle@osinet.co.uk on 20 Aug 2022
  */
-public interface ConcertRepository extends PagingAndSortingRepository<Concert, Integer> {
+public interface ConcertRepository extends CrudRepository<Concert, Integer>, PagingAndSortingRepository<Concert, Integer> {
     
     public Optional<Concert> findByDate(Date date);
     /**

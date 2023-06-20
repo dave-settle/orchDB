@@ -6,31 +6,33 @@
 
         <title th:replace="${title}">The awesome application</title>
         <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
         <!-- Common styles and scripts -->
-        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/5.2.0/css/bootstrap.min.css"
-              th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"
+        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/5.3.0/css/bootstrap.min.css"
+              th:href="@{/webjars/bootstrap/5.3.0/css/bootstrap.min.css}"
               rel="stylesheet" media="screen" />
-        <script src="http://cdn.jsdelivr.net/webjars/jquery/3.6.1/jquery.min.js"
-        th:src="@{/webjars/jquery/3.6.1/jquery.min.js}"></script>
-        <script src="http://cdn.jsdelivr.net/webjars/jquery-validation/1.19.3/jquery.validate.min.js"
-        th:src="@{/webjars/jquery-validation/1.19.3/jquery.validate.min.js}"></script>
+        <script src="http://cdn.jsdelivr.net/webjars/jquery/3.6.4/jquery.min.js"
+        th:src="@{/webjars/jquery/3.6.4/jquery.min.js}"></script>
+        <script src="http://cdn.jsdelivr.net/webjars/jquery-validation/1.19.5/jquery.validate.min.js"
+        th:src="@{/webjars/jquery-validation/1.19.5/jquery.validate.min.js}"></script>
         <!-- Bootstrap -->
-        <script src="http://cdn.jsdelivr.net/webjars/bootstrap/5.2.0/js/bootstrap.min.js"
-        th:src="@{/webjars/bootstrap/5.2.0/js/bootstrap.min.js}"></script>
+        <script src="http://cdn.jsdelivr.net/webjars/bootstrap/5.3.0/js/bootstrap.min.js"
+        th:src="@{/webjars/bootstrap/5.3.0/js/bootstrap.min.js}"></script>
         <!-- Additional resources required for dataTables -->
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.css"
-              th:href="@{/webjars/datatables/1.12.1/css/jquery.dataTables.min.css}"/>
-        <script src="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.js"
-        th:src="@{/webjars/datatables/1.12.1/js/jquery.dataTables.min.js}"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.13.2/datatables.min.css"
+            th:href="@{/webjars/datatables/1.13.2/css/jquery.dataTables.min.css}"/>
+        <script src="https://cdn.datatables.net/v/bs4/dt-1.13.2/datatables.min.js"
+            th:src="@{/webjars/datatables/1.13.2/js/jquery.dataTables.min.js}"></script>
         
         <link rel="shortcut icon" href="/images/favicon.ico" th:href="@{/images/favicon.ico}"/>
-
         <!--/* Per-page placeholder for additional links */-->
         <th:block th:replace="${links}" />
         <!--/* Per-page placeholder for additional scripts */-->
         <th:block th:replace="${scripts}" />
         <!-- Bootstrap icons -->
-        <style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
+              th:href="@{/webjars/bootstrap-icons/1.10.5/font/bootstrap-icons.css}"/>
+       <style>
             i.bi   {
                 font-size: 1.5rem; 
                 color: cornflowerblue;
@@ -47,6 +49,7 @@
                 <tbody>
                     <tr>
                         <td><img src="BSO" th:attr="src=@{/images/BSO-Red-Logo2.png}" alt="BSO Image"/></td> 
+                        <!--<td th:text="${#authentication}">authentication</td>-->
                         <td th:if="${#authentication} != null">
                             <a href="login" th:if="${#authentication.name} == 'anonymousUser'" th:href="@{/concert/login}">Login</a>
                             <a href="setpassword" th:if="${#authentication.name} != 'anonymousUser'" th:href="@{/user/setpassword}">Set password</a>

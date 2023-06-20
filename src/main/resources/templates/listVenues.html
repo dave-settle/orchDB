@@ -5,7 +5,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head th:replace="header :: common_header(~{::title}, ~{::link}, ~{::script})">
+    <head th:replace="~{header :: common_header(~{::title}, ~{}, ~{::script})}">
         <title>Venue List</title>
         
         <script>
@@ -17,14 +17,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                 });
             });
         </script>
-        <!-- Bootstrap Icon font -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" 
-              th:href="@{/webjars/bootstrap-icons/1.9.1/font/bootstrap-icons.css}"/>
     </head>
     <body>
         <h1>Venue List</h1>
         <p/>
-        <div th:include="header :: options"/>
+        <div th:insert="~{header :: options}"/>
         <div sec:authorize="hasRole('ROLE_ADMIN')">
             <a th:href="@{new}">Create new Venue</a>
         </div>

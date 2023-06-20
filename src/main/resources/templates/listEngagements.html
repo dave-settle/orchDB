@@ -4,7 +4,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to c
 Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
-    <head th:replace="header :: common_header(~{::title}, ~{}, ~{::script})"> 
+    <head th:replace="~{header :: common_header(~{::title}, ~{}, ~{::script})}"> 
         <title>Soloists</title>
         
         <script>
@@ -22,7 +22,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
     <body>
         <h1>Soloists</h1>
         <p/>
-        <div th:include="header :: options"/>
+        <div th:insert="~{header :: options}"/>
         <div class="table-responsive">
             <br/><br/>
             <table id="engagementTable" class="table table-bordered table-striped">

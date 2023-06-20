@@ -1,25 +1,10 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
-    <head> 
+    <head th:replace="~{header :: common_header(~{::title}, ~{}, ~{})}"> 
         <title>Error</title>
-        <meta charset="UTF-8"/>
-        <link href="http://cdn.jsdelivr.net/webjars/bootstrap/5.2.0/css/bootstrap.min.css"
-              th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}"
-              rel="stylesheet" media="screen" />
-        <script src="http://cdn.jsdelivr.net/webjars/jquery/3.6.1/jquery.min.js"
-        th:src="@{/webjars/jquery/3.6.1/jquery.min.js}"></script>
-        <!-- Bootstrap -->
-        <script src="http://cdn.jsdelivr.net/webjars/bootstrap/5.2.0/js/bootstrap.min.js"
-        th:src="@{/webjars/bootstrap/5.2.0/js/bootstrap.min.js}"></script>
-        <!-- Additional resources required for dataTables -->
-        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.css"
-              th:href="@{/webjars/datatables/1.12.1/css/jquery.dataTables.min.css}"/>
-        <script src="https://cdn.datatables.net/v/bs4/dt-1.12.1/datatables.min.js"
-        th:src="@{/webjars/datatables/1.12.1/js/jquery.dataTables.min.js}"></script>
-
     </head>
     <body>        
-        <div th:include="header :: options"></div>
+        <div th:insert="~{header :: options}"></div>
         <h1>Error</h1><!-- comment -->        
         <p th:if="${url}">
             <b>Page:</b> <span th:text="${url}">Page URL</span>
