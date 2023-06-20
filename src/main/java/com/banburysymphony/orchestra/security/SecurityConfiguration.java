@@ -61,6 +61,7 @@ public class SecurityConfiguration {
         http
             .requiresChannel(channel -> channel.anyRequest().requiresSecure())
             .authorizeHttpRequests((requests) -> requests
+                .requestMatchers("/").permitAll()
                 .requestMatchers("/*/list**").permitAll()
                 .requestMatchers("/webjars/**").permitAll()
                 .requestMatchers("/error*").permitAll()

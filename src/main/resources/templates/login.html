@@ -28,6 +28,7 @@
     </head>
     <body>
         <div class="container">
+            <div th:insert="~{header :: options}"/>
             <h1>Login</h1>
             <form id="loginForm" action="#" class="g-3" th:action="@{/login.html}" method='POST'>
                 <div class="col-5">
