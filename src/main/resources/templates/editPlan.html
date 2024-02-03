@@ -78,6 +78,10 @@
                             <input class="form-control" id="concertDate" type="date" th:field="*{date}" required="required"/>
                         </div>
                         <div class="col-auto">
+                            <label for="concertTime" class="form-label">Start Time</label>
+                            <input class="form-control" id="concertTime" type="time" th:field="*{startAt}" required="required"/>
+                        </div>
+                        <div class="col-auto">
                             <label for="venue" class="form-label">Venue</label>
                             <select class="form-select" th:field="*{venue}" id="venue" required="required">
                                 <option th:each="v : ${venues}" th:text="${v.name}" th:value="${v.id}"

@@ -19,6 +19,7 @@ import jakarta.persistence.OrderColumn;
 import jakarta.persistence.Table;
 import java.sql.Date;
 import java.text.DateFormat;
+import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,20 @@ import java.util.TreeSet;
 @Entity
 @Table(name = "concerts")
 public class Concert {
+
+    /**
+     * @return the startAt
+     */
+    public LocalTime getStartAt() {
+        return startAt;
+    }
+
+    /**
+     * @param startAt the startAt to set
+     */
+    public void setStartAt(LocalTime startAt) {
+        this.startAt = startAt;
+    }
 
     /**
      * @return the notes
@@ -64,7 +79,11 @@ public class Concert {
     @ManyToOne
     private Venue venue;
     
+    @Column
     private Date date;
+    
+    @Column
+    private LocalTime startAt;
 
     @OrderColumn
     @ManyToMany

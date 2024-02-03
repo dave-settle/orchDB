@@ -78,7 +78,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this temp
                     </thead>
                     <tbody>
                         <tr th:each="concert : ${concerts}">
-                            <td class="BSOconcertDate" th:text="${concert.date}">Date</td>
+                            <td class="BSOconcertDate" th:text="${concert.date} + ' ' + (${concert.startAt} ? ${concert.startAt} : '')">Date</td>
                             <td th:with="filename=|/files/programme-${#calendars.format(concert.date,'yyyy-MM-dd')}|">
                                 <div th:text="${concert.venue.name}">Venue</div>
                                 <div th:if="${@environment.getProperty('bso.file.use-file-storage-service')}">

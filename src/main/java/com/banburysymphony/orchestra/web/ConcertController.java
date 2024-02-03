@@ -37,8 +37,10 @@ import java.sql.Date;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
+import static java.time.Clock.systemDefaultZone;
+import java.time.ZoneId;
 import java.util.AbstractMap;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -80,7 +82,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller // This means that this class is a web Controller
 @RequestMapping(path = "/concert")
@@ -121,6 +122,17 @@ public class ConcertController {
     private boolean useFileStorageService = false;
 
     private static final Logger log = LoggerFactory.getLogger(ConcertController.class);
+    
+    @Value("${bso.default.timezone:BST}")
+    private String timezoneName = "Europe/London";
+    
+    @Value("${bso.default.concert.start.hour:19}")
+    private int defaultStartHour = 19;
+    
+    @Value("${bso.default.concert.start.minute:30}")
+    private int defaultStartMinute = 30;
+
+    private Clock clock = systemDefaultZone();
 
     public ConcertController() {
         this.composerMap = Map.ofEntries(
@@ -129,6 +141,9 @@ public class ConcertController {
                 new AbstractMap.SimpleEntry<>("faure", "Fauré"),
                 new AbstractMap.SimpleEntry<>("francaix", "Françaix")
         );
+        log.debug("timeZone " + timezoneName);
+        ZoneId zone = ZoneId.of(timezoneName);
+        clock = Clock.system(zone);
     }
 
     /**
@@ -733,5 +748,61 @@ public class ConcertController {
         Date now = new Date(System.currentTimeMillis());
         Predicate<Concert> byDate = concert -> concert.getDate().before(now);
         return StreamSupport.stream(concerts.spliterator(), false).filter(byDate).collect(Collectors.toList());
+    }
+
+    /**
+     * @return the timezoneName
+     */
+    public String getTimezoneName() {
+        return timezoneName;
+    }
+
+    /**
+     * @param timezoneName the timezoneName to set
+     */
+    public void setTimezoneName(String timezoneName) {
+        this.timezoneName = timezoneName;
+    }
+
+    /**
+     * @return the defaultStartHour
+     */
+    public int getDefaultStartHour() {
+        return defaultStartHour;
+    }
+
+    /**
+     * @param defaultStartHour the defaultStartHour to set
+     */
+    public void setDefaultStartHour(int defaultStartHour) {
+        this.defaultStartHour = defaultStartHour;
+    }
+
+    /**
+     * @return the defaultStartMinute
+     */
+    public int getDefaultStartMinute() {
+        return defaultStartMinute;
+    }
+
+    /**
+     * @param defaultStartMinute the defaultStartMinute to set
+     */
+    public void setDefaultStartMinute(int defaultStartMinute) {
+        this.defaultStartMinute = defaultStartMinute;
+    }
+
+    /**
+     * @return the clock
+     */
+    public Clock getClock() {
+        return clock;
+    }
+
+    /**
+     * @param clock the clock to set
+     */
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }

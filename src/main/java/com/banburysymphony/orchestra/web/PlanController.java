@@ -16,6 +16,10 @@ import com.banburysymphony.orchestra.data.Piece;
 import com.banburysymphony.orchestra.data.Venue;
 import jakarta.validation.Valid;
 import java.sql.Date;
+import java.time.Clock;
+import static java.time.Clock.systemDefaultZone;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
@@ -40,9 +44,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller // This means that this class is a Controller
 @RequestMapping(path = "/plan")
 public class PlanController extends ConcertController {
-
+    
     private static final Logger log = LoggerFactory.getLogger(PlanController.class);
-
+    
     /**
      * Default conductor
      */
@@ -69,6 +73,7 @@ public class PlanController extends ConcertController {
         Venue venue = venueRepository.findByName(getVenueName()).orElseThrow();
         Concert concert = new Concert(venue, nextMonth, conductor);
         concert.setConductor(conductor);
+        concert.setStartAt(LocalTime.of(getDefaultStartHour(), getDefaultStartMinute()));
         concert = concertRepository.save(concert);
         model.addAttribute("concert", concert);
         editSupport(model);
